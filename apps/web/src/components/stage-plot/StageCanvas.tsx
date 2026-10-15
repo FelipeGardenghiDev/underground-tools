@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { StageItem, StageItemCategory } from '@/types';
+import { STAGE_PRESETS } from '@/lib/mock-data';
 import { 
   Plus, 
   Trash2, 
@@ -11,7 +12,9 @@ import {
   Mic2, 
   Layers, 
   HelpCircle,
-  Move
+  Move,
+  Download,
+  LayoutTemplate
 } from 'lucide-react';
 
 interface StageCanvasProps {
@@ -35,6 +38,7 @@ export function StageCanvas({ items, onUpdateItems }: StageCanvasProps) {
   const [selectedId, setSelectedId] = useState<string | null>(items[0]?.id || null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragItemId, setDragItemId] = useState<string | null>(null);
+  const [showStamps, setShowStamps] = useState(true);
   const stageRef = useRef<HTMLDivElement>(null);
 
   const selectedItem = items.find((i) => i.id === selectedId) || null;
@@ -80,6 +84,14 @@ export function StageCanvas({ items, onUpdateItems }: StageCanvasProps) {
     setSelectedId(newItem.id);
   };
 
+  // Apply stage preset template
+  const handleApplyPreset = (presetItems: StageItem[]) => {
+    if (confirm('Deseja carregar este modelo de palco? O layout atual será substituído.')) {
+      onUpdateItems(presetItems);
+      setSelectedId(presetItems[0]?.id || null);
+    }
+  };
+
   // Delete item
   const handleDeleteItem = (id: string) => {
     const filtered = items.filter((i) => i.id !== id);
@@ -94,6 +106,84 @@ export function StageCanvas({ items, onUpdateItems }: StageCanvasProps) {
     onUpdateItems(
       items.map((i) => (i.id === id ? { ...i, rotation: ((i.rotation || 0) + 45) % 360 } : i))
     );
+  };
+
+  // Export stage plot as SVG image file
+  const handleExportStageImage = () => {
+    const width = 1000;
+    const height = 700;
+
+    const svgContent = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">
+        <rect width="${width}" height="${height}" fill="#09090b" stroke="#ffffff" stroke-width="6"/>
+        
+        <!-- Header -->
+        <rect x="0" y="0" width="${width}" height="60" fill="#e11d48"/>
+        <text x="30" y="40" font-family="Arial, sans-serif" font-weight="900" font-size="28" fill="#ffffff" letter-spacing="2">
+          STAGE PLOT // MAPA DE PALCO OFICIAL (UNDERGROUND TOOLS)
+        </text>
+
+        <!-- Upstage guide -->
+        <rect x="50" y="80" width="${width - 100}" height="30" fill="#18181b" stroke="#3f3f46" stroke-dasharray="4"/>
+        <text x="${width / 2}" y="100" text-anchor="middle" font-family="monospace" font-size="14" fill="#a1a1aa">
+          ▲ FUNDO DE PALCO // PAREDE // DRUM RISER ▲
+        </text>
+
+        <!-- Drum guide box -->
+        <rect x="300" y="130" width="400" height="200" fill="none" stroke="#27272a" stroke-width="2" stroke-dasharray="6"/>
+        <text x="${width / 2}" y="235" text-anchor="middle" font-family="monospace" font-size="14" fill="#3f3f46">
+          ÁREA DA BATERIA (2x2m)
+        </text>
+
+        <!-- Stage Items -->
+        ${items
+          .map((item) => {
+            const posX = (item.x / 100) * width;
+            const posY = (item.y / 100) * height;
+            let fill = '#18181b';
+            let stroke = '#ffffff';
+            let textColor = '#ffffff';
+
+            if (item.type === 'drums') { fill = '#451a03'; stroke = '#f59e0b'; textColor = '#fef3c7'; }
+            else if (item.type === 'amp_bass') { fill = '#172554'; stroke = '#3b82f6'; textColor = '#dbeafe'; }
+            else if (item.type === 'amp_guitar') { fill = '#450a0a'; stroke = '#ef4444'; textColor = '#fee2e2'; }
+            else if (item.type === 'mic_vocal') { fill = '#022c22'; stroke = '#10b981'; textColor = '#d1fae5'; }
+            else if (item.type === 'power_strip') { fill = '#422006'; stroke = '#eab308'; textColor = '#fef08a'; }
+            else if (item.type === 'monitor_wedge') { fill = '#3b0764'; stroke = '#a855f7'; textColor = '#f3e8ff'; }
+
+            return `
+              <g transform="translate(${posX}, ${posY})">
+                <rect x="-60" y="-30" width="120" height="60" fill="${fill}" stroke="${stroke}" stroke-width="3" rx="4"/>
+                <text x="0" y="-5" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="12" fill="${textColor}">
+                  ${item.shortLabel}
+                </text>
+                ${item.channelNumber ? `
+                  <text x="0" y="16" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="11" fill="#facc15">
+                    CH ${item.channelNumber}
+                  </text>
+                ` : ''}
+              </g>
+            `;
+          })
+          .join('')}
+
+        <!-- Downstage / Audience -->
+        <rect x="0" y="${height - 50}" width="${width}" height="50" fill="#facc15"/>
+        <text x="${width / 2}" y="${height - 20}" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="18" fill="#000000" letter-spacing="4">
+          ▼ FRENTE DE PALCO // PÚBLICO & F.O.H. ▼
+        </text>
+      </svg>
+    `;
+
+    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `mapa-de-palco-underground-${new Date().toISOString().slice(0, 10)}.svg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   // Render visual item icon/badge
@@ -162,21 +252,55 @@ export function StageCanvas({ items, onUpdateItems }: StageCanvasProps) {
           </p>
         </div>
 
-        {/* Quick Add Bar */}
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-[11px] font-mono text-zinc-400 mr-1 flex items-center gap-1">
-            <Plus className="w-3.5 h-3.5 text-yellow-400" /> Inserir no palco:
-          </span>
-          {PRESET_GEAR.map((preset) => (
-            <button
-              key={preset.type}
-              onClick={() => handleAddGear(preset)}
-              className="bg-black hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-700 hover:border-zinc-500 text-[10px] font-mono px-2 py-1 transition-all active:scale-95"
-            >
-              + {preset.shortLabel}
-            </button>
-          ))}
+        {/* Action: Export SVG Image */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowStamps(!showStamps)}
+            className="text-[11px] font-mono text-zinc-400 hover:text-white px-2 py-1 border border-zinc-700"
+          >
+            {showStamps ? 'Ocultar Carimbos' : 'Mostrar Carimbos'}
+          </button>
+
+          <button
+            onClick={handleExportStageImage}
+            className="bg-yellow-400 hover:bg-yellow-300 text-black font-mono font-bold text-xs uppercase px-3 py-1.5 border-2 border-black shadow-brutal-sm flex items-center gap-1.5 active:scale-95 transition-all"
+          >
+            <Download className="w-3.5 h-3.5" /> Baixar Imagem (SVG/WhatsApp)
+          </button>
         </div>
+      </div>
+
+      {/* Preset Formations Bar */}
+      <div className="bg-black border border-zinc-800 p-2.5 flex flex-wrap items-center gap-2 text-xs font-mono">
+        <span className="text-zinc-400 flex items-center gap-1 mr-1">
+          <LayoutTemplate className="w-3.5 h-3.5 text-rose-500" /> Modelos Rápidos de Palco:
+        </span>
+        {STAGE_PRESETS.map((preset, idx) => (
+          <button
+            key={idx}
+            onClick={() => handleApplyPreset(preset.items)}
+            className="bg-zinc-900 hover:bg-zinc-800 text-zinc-200 hover:text-white border border-zinc-700 hover:border-rose-500 px-2.5 py-1 text-[11px] transition-colors"
+            title={preset.description}
+          >
+            {preset.name}
+          </button>
+        ))}
+      </div>
+
+      {/* Quick Add Bar */}
+      <div className="bg-zinc-900/60 border border-zinc-800 p-2 flex flex-wrap items-center gap-1.5 text-xs font-mono">
+        <span className="text-[11px] text-zinc-400 mr-1 flex items-center gap-1">
+          <Plus className="w-3.5 h-3.5 text-yellow-400" /> Inserir equipamento:
+        </span>
+        {PRESET_GEAR.map((preset) => (
+          <button
+            key={preset.type}
+            onClick={() => handleAddGear(preset)}
+            className="bg-black hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-700 hover:border-zinc-500 text-[10px] px-2 py-1 transition-all active:scale-95"
+          >
+            + {preset.shortLabel}
+          </button>
+        ))}
       </div>
 
       {/* Main Grid + Inspector */}
@@ -215,6 +339,18 @@ export function StageCanvas({ items, onUpdateItems }: StageCanvasProps) {
               ▼ FRENTE DE PALCO // PÚBLICO & MESA DE SOM (F.O.H.) ▼
             </div>
 
+            {/* Virtual DIY Stamps on Canvas */}
+            {showStamps && (
+              <>
+                <div className="absolute top-6 left-6 pointer-events-none stamp-approved">
+                  F.O.H. APPROVED
+                </div>
+                <div className="absolute top-6 right-6 pointer-events-none stamp-danger">
+                  PASSAGEM OBRIGATÓRIA
+                </div>
+              </>
+            )}
+
             {/* Render Items */}
             {items.map((item) => renderItemVisual(item, item.id === selectedId))}
           </div>
@@ -235,7 +371,7 @@ export function StageCanvas({ items, onUpdateItems }: StageCanvasProps) {
                 <span className="text-[10px] font-mono text-rose-500 uppercase tracking-widest">
                   PROPRIEDADES DO EQUIPAMENTO
                 </span>
-                <h3 className="font-stencil text-lg text-zinc-100 tracking-wider">
+                <h3 className="font-stencil text-xl text-zinc-100 tracking-wider">
                   {selectedItem.shortLabel}
                 </h3>
               </div>

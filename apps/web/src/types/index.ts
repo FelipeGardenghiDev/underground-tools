@@ -79,6 +79,16 @@ export interface BandMember {
   gearSummary: string;
 }
 
+export interface ReleaseItem {
+  id: string;
+  title: string;
+  year: string;
+  type: 'Full-length' | 'EP' | 'Split' | 'Single' | 'Ao Vivo';
+  label?: string;
+  tracksCount: number;
+  listenUrl?: string;
+}
+
 export interface BandProfile {
   id: string;
   slug: string;
@@ -90,6 +100,7 @@ export interface BandProfile {
   bioLong: string;
   pressQuotes: { source: string; quote: string }[];
   members: BandMember[];
+  releases: ReleaseItem[];
   links: {
     spotify: string;
     bandcamp: string;
@@ -101,4 +112,15 @@ export interface BandProfile {
     pixReceiver: string;
   };
   pressPhotos: { id: string; title: string; resolution: string; downloadUrl: string }[];
+}
+
+export interface SetlistItem {
+  id: string;
+  order: number;
+  title: string;
+  tuning: 'Standard E' | 'Drop D' | 'Half-Step (Eb)' | 'Drop C' | 'Open DADGAD' | 'Standard D' | 'Outra';
+  bpm?: number;
+  duration?: string;
+  notes?: string;
+  isEncore?: boolean; // Bis
 }

@@ -1,4 +1,12 @@
-import { BandProfile, GigDate, InputListChannel, MerchItem, StageItem, TechRider } from '@/types';
+import { 
+  BandProfile, 
+  GigDate, 
+  InputListChannel, 
+  MerchItem, 
+  SetlistItem, 
+  StageItem, 
+  TechRider 
+} from '@/types';
 
 export const initialBandProfile: BandProfile = {
   id: 'band-1',
@@ -24,6 +32,35 @@ export const initialBandProfile: BandProfile = {
     { id: 'm2', name: 'Bia Rocha', role: 'Guitarra Solo & Backing Vocals', gearSummary: 'Gibson Les Paul Special + Vox AC30 2x12' },
     { id: 'm3', name: 'Pedro "D-Beat"', role: 'Baixo & Gritos', gearSummary: 'Fender Jazz Bass Precision + Ampeg SVT-CL 8x10' },
     { id: 'm4', name: 'Thiago Mendes', role: 'Bateria & Percussão', gearSummary: 'Gretsch Catalina Club 4-piece (Bumbo 22, Caixa 14, Surdo 16)' },
+  ],
+  releases: [
+    {
+      id: 'rel-1',
+      title: 'Cinzas & Silêncio (EP)',
+      year: '2023',
+      type: 'EP',
+      label: 'Subsolo Records (K7 / Digital)',
+      tracksCount: 5,
+      listenUrl: 'https://colapsomemorial.bandcamp.com/album/cinzas-silencio',
+    },
+    {
+      id: 'rel-2',
+      title: 'Split 7" c/ Revanche',
+      year: '2024',
+      type: 'Split',
+      label: 'Fita Crepe Discos / Laje Records',
+      tracksCount: 4,
+      listenUrl: 'https://colapsomemorial.bandcamp.com/album/split-7-colapso-revanche',
+    },
+    {
+      id: 'rel-3',
+      title: 'Ao Vivo no Porão do Hangar',
+      year: '2025',
+      type: 'Ao Vivo',
+      label: 'DIY Bootleg Series',
+      tracksCount: 8,
+      listenUrl: 'https://colapsomemorial.bandcamp.com',
+    },
   ],
   links: {
     spotify: 'https://open.spotify.com/artist/colapsomemorial',
@@ -299,5 +336,124 @@ export const initialMerch: MerchItem[] = [
     description: 'Patches serigrafados com tinta vinílica branca sobre brim preto. Resistentes a chuva e máquina de lavar.',
     imageUrl: '',
     inStock: true,
+  },
+];
+
+export const initialSetlist: SetlistItem[] = [
+  {
+    id: 'set-1',
+    order: 1,
+    title: 'Estilhaços de Vidro Frio',
+    tuning: 'Standard E',
+    bpm: 172,
+    duration: '2:45',
+    notes: 'Entrada direta na bateria sem contagem. Clímax com feedback.',
+  },
+  {
+    id: 'set-2',
+    order: 2,
+    title: 'Nenhum Segundo a Menos',
+    tuning: 'Standard E',
+    bpm: 180,
+    duration: '3:10',
+    notes: 'Emenda direto na 1 (sem pausa). D-Beat acelerado.',
+  },
+  {
+    id: 'set-3',
+    order: 3,
+    title: 'Vigília Subterrânea',
+    tuning: 'Drop D',
+    bpm: 135,
+    duration: '4:20',
+    notes: 'Léo dropa a 6ª corda para D. Falar "boa noite" rápido durante afinação.',
+  },
+  {
+    id: 'set-4',
+    order: 4,
+    title: 'Quarto em Chamas',
+    tuning: 'Drop D',
+    bpm: 148,
+    duration: '3:50',
+    notes: 'Intro limpa com delay da Bia. Baixo entra pesado.',
+  },
+  {
+    id: 'set-5',
+    order: 5,
+    title: 'Descompasso Moral',
+    tuning: 'Half-Step (Eb)',
+    bpm: 165,
+    duration: '3:30',
+    notes: 'Troca de guitarra pro Léo (Telecaster afinada em Eb).',
+  },
+  {
+    id: 'set-6',
+    order: 6,
+    title: 'Memória e Cinzas',
+    tuning: 'Half-Step (Eb)',
+    bpm: 120,
+    duration: '5:15',
+    notes: 'Screamo dinâmico com parte falada no meio.',
+  },
+  {
+    id: 'set-7',
+    order: 7,
+    title: 'Último Suspiro no Hangar',
+    tuning: 'Drop D',
+    bpm: 190,
+    duration: '3:40',
+    notes: 'Fim do set regular. Agradecer produção e bandas da noite.',
+  },
+  {
+    id: 'set-8',
+    order: 8,
+    title: 'Revanche Inadiável (BIS)',
+    tuning: 'Drop D',
+    bpm: 200,
+    duration: '2:50',
+    notes: 'Música do Bis! Todos os vocalistas convidados no palco.',
+    isEncore: true,
+  },
+];
+
+// Stage Presets
+export const STAGE_PRESETS: { name: string; description: string; items: StageItem[] }[] = [
+  {
+    name: 'Quarteto Emo/Hardcore (Padrão)',
+    description: 'Bateria central, Baixo na esquerda, 2 Guitarras na direita, 3 Mics de frente e tomadas.',
+    items: initialStageItems,
+  },
+  {
+    name: 'Trio Punk / Hardcore Rápido',
+    description: 'Bateria, Amp de Baixo com Mic na esquerda, Amp de Guitarra com Mic na direita.',
+    items: [
+      { id: 'trio-1', type: 'drums', name: 'Bateria', shortLabel: 'BATERIA', x: 50, y: 22 },
+      { id: 'trio-2', type: 'amp_bass', name: 'Amp Baixo', shortLabel: 'AMP BAIXO', x: 22, y: 30, channelNumber: 4 },
+      { id: 'trio-3', type: 'amp_guitar', name: 'Amp Guitarra 4x12', shortLabel: 'AMP GUIT 4x12', x: 78, y: 30, channelNumber: 5 },
+      { id: 'trio-4', type: 'mic_vocal', name: 'Voz Principal / Baixo', shortLabel: 'MIC VOZ (BAIXO)', x: 30, y: 78, channelNumber: 6 },
+      { id: 'trio-5', type: 'mic_vocal', name: 'Backing / Guitarra', shortLabel: 'MIC VOZ (GUIT)', x: 70, y: 78, channelNumber: 7 },
+      { id: 'trio-6', type: 'monitor_wedge', name: 'Monitor 1', shortLabel: 'MONITOR BAIXO', x: 30, y: 92 },
+      { id: 'trio-7', type: 'monitor_wedge', name: 'Monitor 2', shortLabel: 'MONITOR GUIT', x: 70, y: 92 },
+      { id: 'trio-8', type: 'power_strip', name: 'Tomada AC Pedaleiras', shortLabel: 'AC 110V', x: 65, y: 65 },
+    ],
+  },
+  {
+    name: 'Banda com Teclado / Synths / VS',
+    description: 'Formação completa com praticável de teclado/synth lateral e ponto de Direct Box estéreo para VS.',
+    items: [
+      ...initialStageItems,
+      { id: 'synth-1', type: 'keyboard', name: 'Sintetizador / Teclado', shortLabel: 'TECLADO / SYNTH', x: 20, y: 50, channelNumber: 13 },
+      { id: 'di-vs', type: 'di_box', name: 'D.I. Box Estéreo (VS / Click)', shortLabel: 'D.I. DO VS', x: 42, y: 25, channelNumber: 14 },
+    ],
+  },
+  {
+    name: 'Folk Punk / Acústico DIY',
+    description: 'Violões, Cajón/Percussão, Baixo Acústico, Microfones dedicados.',
+    items: [
+      { id: 'folk-1', type: 'drums', name: 'Cajón / Percussão', shortLabel: 'CAJÓN / PERC', x: 50, y: 25, channelNumber: 1 },
+      { id: 'folk-2', type: 'acoustic', name: 'Violão Aço (D.I.)', shortLabel: 'VIOLÃO 1', x: 75, y: 70, channelNumber: 2 },
+      { id: 'folk-3', type: 'acoustic', name: 'Violão / Banjo', shortLabel: 'VIOLÃO 2', x: 25, y: 70, channelNumber: 3 },
+      { id: 'folk-4', type: 'mic_vocal', name: 'Voz Centro', shortLabel: 'MIC VOZ 1', x: 50, y: 75, channelNumber: 4 },
+      { id: 'folk-5', type: 'monitor_wedge', name: 'Monitor Centro', shortLabel: 'MONITOR C', x: 50, y: 92 },
+    ],
   },
 ];

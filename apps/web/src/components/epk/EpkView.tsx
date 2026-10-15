@@ -14,7 +14,12 @@ import {
   Edit3,
   Disc3,
   Radio,
-  FileCheck
+  FileCheck,
+  Play,
+  Pause,
+  Volume2,
+  Calendar,
+  Layers
 } from 'lucide-react';
 
 interface EpkViewProps {
@@ -25,6 +30,7 @@ interface EpkViewProps {
 export function EpkView({ profile, onUpdateProfile }: EpkViewProps) {
   const [viewMode, setViewMode] = useState<'editor' | 'preview'>('preview');
   const [copiedBio, setCopiedBio] = useState(false);
+  const [isPlayingDemo, setIsPlayingDemo] = useState(false);
 
   const handleCopyShortBio = () => {
     navigator.clipboard.writeText(profile.bioShort);
@@ -96,7 +102,7 @@ export function EpkView({ profile, onUpdateProfile }: EpkViewProps) {
                   </span>
                 </div>
 
-                <h1 className="font-stencil text-4xl md:text-6xl text-white tracking-wider">
+                <h1 className="font-stencil text-5xl md:text-7xl text-white tracking-wider">
                   {profile.name}
                 </h1>
               </div>
@@ -110,7 +116,7 @@ export function EpkView({ profile, onUpdateProfile }: EpkViewProps) {
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-600 px-3 py-1.5 transition-colors"
                   >
-                    <Disc3 className="w-4 h-4 animate-spin-slow" /> Spotify
+                    <Disc3 className="w-4 h-4" /> Spotify
                   </a>
                 )}
                 {profile.links.bandcamp && (
@@ -137,6 +143,49 @@ export function EpkView({ profile, onUpdateProfile }: EpkViewProps) {
             </div>
           </div>
 
+          {/* Embedded Audio Demo Player (Cassette Style) */}
+          <div className="bg-black border-2 border-zinc-700 p-4 shadow-brutal flex flex-col md:flex-row md:items-center justify-between gap-4 font-mono text-xs">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsPlayingDemo(!isPlayingDemo)}
+                className="w-12 h-12 bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center border-2 border-black shadow-brutal-sm transition-all active:scale-95 shrink-0"
+                title={isPlayingDemo ? 'Pausar áudio demo' : 'Tocar áudio demo'}
+              >
+                {isPlayingDemo ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white ml-0.5" />}
+              </button>
+
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] bg-yellow-400 text-black px-1.5 font-bold uppercase">
+                    ÁUDIO DEMO // FAIXA PROMO
+                  </span>
+                  <span className="text-zinc-500 text-[10px]">
+                    {isPlayingDemo ? 'TOCANDO' : 'PAUSADO'}
+                  </span>
+                </div>
+                <div className="text-zinc-100 font-bold text-sm tracking-wide mt-0.5">
+                  Estilhaços de Vidro Frio (Single 2026)
+                </div>
+                <div className="text-zinc-400 text-[11px]">
+                  Gravado ao vivo no Porão • Masterização DIY por Cólera Tapes
+                </div>
+              </div>
+            </div>
+
+            {/* Fake Spectrum / Player Bar */}
+            <div className="flex items-center gap-3 w-full md:w-auto">
+              <div className="flex items-end gap-1 h-6 w-32 bg-zinc-900 px-2 py-1 border border-zinc-800">
+                <div className={`w-1.5 bg-rose-500 transition-all ${isPlayingDemo ? 'h-5 animate-pulse' : 'h-1'}`}></div>
+                <div className={`w-1.5 bg-rose-500 transition-all ${isPlayingDemo ? 'h-3 animate-pulse' : 'h-2'}`}></div>
+                <div className={`w-1.5 bg-yellow-400 transition-all ${isPlayingDemo ? 'h-6 animate-pulse' : 'h-1'}`}></div>
+                <div className={`w-1.5 bg-yellow-400 transition-all ${isPlayingDemo ? 'h-4 animate-pulse' : 'h-3'}`}></div>
+                <div className={`w-1.5 bg-emerald-400 transition-all ${isPlayingDemo ? 'h-5 animate-pulse' : 'h-2'}`}></div>
+                <div className={`w-1.5 bg-emerald-400 transition-all ${isPlayingDemo ? 'h-2 animate-pulse' : 'h-1'}`}></div>
+              </div>
+              <span className="text-[11px] text-zinc-400">2:45 min</span>
+            </div>
+          </div>
+
           {/* Quick Copy Bio for Posters/Flyers */}
           <div className="bg-zinc-900/90 border-2 border-yellow-400/80 p-4 shadow-brutal-sm">
             <div className="flex items-center justify-between mb-2">
@@ -154,6 +203,48 @@ export function EpkView({ profile, onUpdateProfile }: EpkViewProps) {
             <p className="font-mono text-xs text-zinc-300 leading-relaxed italic bg-black/60 p-3 border border-zinc-800">
               "{profile.bioShort}"
             </p>
+          </div>
+
+          {/* Discography Section (Releases) */}
+          <div className="border-2 border-zinc-800 p-5 bg-[#0f0f12] shadow-brutal">
+            <div className="flex items-center gap-2 border-b border-zinc-800 pb-3 mb-4">
+              <Disc3 className="w-5 h-5 text-rose-500" />
+              <h2 className="font-stencil text-2xl text-white tracking-wide">
+                DISCOGRAFIA & LANÇAMENTOS
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
+              {profile.releases?.map((rel) => (
+                <div
+                  key={rel.id}
+                  className="bg-black border border-zinc-800 p-3.5 space-y-2 hover:border-zinc-600 transition-colors flex flex-col justify-between"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="bg-zinc-800 text-yellow-400 px-1.5 py-0.5 uppercase font-bold">
+                        {rel.type}
+                      </span>
+                      <span className="text-zinc-500">{rel.year}</span>
+                    </div>
+                    <h4 className="font-stencil text-xl text-white tracking-wide">{rel.title}</h4>
+                    <p className="text-zinc-400 text-[11px]">{rel.label}</p>
+                    <p className="text-zinc-500 text-[10px]">{rel.tracksCount} faixas</p>
+                  </div>
+
+                  {rel.listenUrl && (
+                    <a
+                      href={rel.listenUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 text-rose-400 hover:text-rose-300 text-[11px] font-bold flex items-center gap-1"
+                    >
+                      <Radio className="w-3.5 h-3.5" /> Ouvir no Bandcamp
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Bio Longa (Zines e Curadoria) */}
@@ -191,7 +282,7 @@ export function EpkView({ profile, onUpdateProfile }: EpkViewProps) {
               <div className="bg-zinc-900 border-2 border-zinc-800 p-4 space-y-3 shadow-brutal-sm">
                 <div className="flex items-center gap-2 border-b border-zinc-800 pb-2">
                   <Users className="w-4 h-4 text-rose-500" />
-                  <h3 className="font-stencil text-lg text-white">FORMAÇÃO ATUAL</h3>
+                  <h3 className="font-stencil text-xl text-white">FORMAÇÃO ATUAL</h3>
                 </div>
                 <div className="space-y-2.5 font-mono text-xs">
                   {profile.members.map((m) => (
@@ -220,7 +311,7 @@ export function EpkView({ profile, onUpdateProfile }: EpkViewProps) {
                         <div className="text-[10px] font-mono text-zinc-500">{photo.resolution}</div>
                       </div>
                       <button
-                        onClick={() => alert(`Iniciando download simulado de: ${photo.title}`)}
+                        onClick={() => alert(`Iniciando download de material oficial: ${photo.title}`)}
                         className="bg-zinc-800 hover:bg-zinc-700 text-yellow-400 p-1.5 border border-zinc-600 transition-colors"
                         title="Baixar Foto em Alta"
                       >
