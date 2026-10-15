@@ -416,12 +416,12 @@ export default function Home() {
 
           <div className="flex items-center gap-4 text-[11px]">
             <a
-              href="https://github.com/underground-tools"
+              href="https://github.com/FelipeGardenghiDev/underground-tools"
               target="_blank"
               rel="noopener noreferrer"
               className="text-zinc-400 hover:text-rose-500 underline"
             >
-              github.com/underground-tools
+              github.com/FelipeGardenghiDev/underground-tools
             </a>
             <span>Feito para a cena independente</span>
           </div>

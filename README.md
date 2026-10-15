@@ -60,7 +60,7 @@ underground-tools/
 
 ```bash
 # Clone o repositório
-git clone https://github.com/underground-tools/underground-tools.git
+git clone https://github.com/FelipeGardenghiDev/underground-tools.git
 cd underground-tools
 
 # Instale as dependências do monorepo

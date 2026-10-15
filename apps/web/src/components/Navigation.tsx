@@ -122,7 +122,7 @@ export function Navigation({
           </button>
 
           <a
-            href="https://github.com/underground-tools"
+            href="https://github.com/FelipeGardenghiDev/underground-tools"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-mono text-xs px-3 py-2 border-2 border-zinc-700 shadow-brutal-sm hover:border-zinc-500 transition-colors"

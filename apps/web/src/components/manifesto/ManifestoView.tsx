@@ -240,7 +240,7 @@ export function ManifestoView({ onSelectTab }: ManifestoViewProps) {
               PARTICIPE DO DESENVOLVIMENTO
             </span>
             <a
-              href="https://github.com/underground-tools"
+              href="https://github.com/FelipeGardenghiDev/underground-tools"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full bg-zinc-900 hover:bg-zinc-800 text-zinc-200 text-xs py-2 px-3 border border-zinc-700 flex items-center justify-center gap-2 transition-colors"
