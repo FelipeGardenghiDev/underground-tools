@@ -1,0 +1,25 @@
+{
+  "name": "underground-tools",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Armas de palco, EPK, Rider Técnico e ferramentas DIY para bandas independentes.",
+  "scripts": {
+    "dev": "pnpm --filter @underground-tools/web dev",
+    "build": "pnpm --filter @underground-tools/web build",
+    "start": "pnpm --filter @underground-tools/web start",
+    "lint": "pnpm --filter @underground-tools/web lint"
+  },
+  "keywords": [
+    "underground",
+    "hardcore",
+    "emo",
+    "diy",
+    "punk",
+    "bands",
+    "stage-plot",
+    "tech-rider",
+    "epk"
+  ],
+  "author": "Underground Tools Community",
+  "license": "MIT"
+}
