@@ -574,6 +574,83 @@ export function EmoPluginsView() {
       </div>
 
       {/* ========================================================================= */}
+      {/* VSTI: A TRINDADE DE INSTRUMENTOS VIRTUAIS (MIDI GENERATORS)               */}
+      {/* ========================================================================= */}
+      <div className="space-y-4">
+        <div className="border-b-2 border-zinc-800 pb-2">
+          <div className="flex items-center gap-2">
+            <span className="bg-purple-600 text-white px-2 py-0.5 text-xs font-bold uppercase">
+              NOVIDADE NO ROADMAP
+            </span>
+            <h3 className="font-stencil text-2xl text-zinc-100 uppercase tracking-wider">
+              🎹 INSTRUMENTOS VIRTUAIS (VSTi) // PARA O REAPER
+            </h3>
+          </div>
+          <p className="text-xs text-zinc-400 mt-1">
+            Gere som do zero desenhando notas no Piano Roll ou tocando no teclado controlador MIDI.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* VSTi 1: MidwestKit */}
+          <div className="bg-[#121217] border-2 border-zinc-800 p-5 shadow-brutal flex flex-col justify-between">
+            <div>
+              <div className="flex justify-between items-start mb-2">
+                <span className="font-stencil text-lg text-emerald-400">🥁 MIDWESTKIT</span>
+                <span className="text-[10px] bg-purple-500/20 text-purple-400 border border-purple-500/40 px-2 py-0.5 font-bold uppercase">
+                  VSTi SAMPLER
+                </span>
+              </div>
+              <p className="text-xs text-zinc-300 leading-relaxed">
+                Bateria acústica crua e orgânica de garagem. Caixa estalada com estalo seco (Ludwig Acrolite / Supraphonic), bumbo de feltro e pratos abafados com fita.
+              </p>
+            </div>
+            <span className="text-[10px] text-zinc-500 mt-3 block border-t border-zinc-800 pt-2 font-mono">
+              ★ Mapeamento General MIDI padrão
+            </span>
+          </div>
+
+          {/* VSTi 2: SadBoy Upright */}
+          <div className="bg-[#121217] border-2 border-zinc-800 p-5 shadow-brutal flex flex-col justify-between">
+            <div>
+              <div className="flex justify-between items-start mb-2">
+                <span className="font-stencil text-lg text-yellow-400">🎹 SADBOY UPRIGHT</span>
+                <span className="text-[10px] bg-purple-500/20 text-purple-400 border border-purple-500/40 px-2 py-0.5 font-bold uppercase">
+                  VSTi PIANO
+                </span>
+              </div>
+              <p className="text-xs text-zinc-300 leading-relaxed">
+                Piano vertical de armário com feltro natural abafando as cordas. Ruído mecânico de teclas e pedal para introduções lentas e intimistas.
+              </p>
+            </div>
+            <span className="text-[10px] text-zinc-500 mt-3 block border-t border-zinc-800 pt-2 font-mono">
+              ★ Captação binaural estéreo próxima
+            </span>
+          </div>
+
+          {/* VSTi 3: Gargantua Colossus */}
+          <div className="bg-[#121217] border-2 border-rose-900/60 p-5 shadow-brutal flex flex-col justify-between relative overflow-hidden">
+            <div className="absolute -top-6 -right-6 w-16 h-16 bg-rose-600/10 rounded-full blur-xl pointer-events-none" />
+            <div>
+              <div className="flex justify-between items-start mb-2">
+                <span className="font-stencil text-lg text-rose-500">🌌 GARGANTUA</span>
+                <span className="text-[10px] bg-rose-500/20 text-rose-400 border border-rose-500/40 px-2 py-0.5 font-bold uppercase">
+                  OMNISPHERE TRIBUTE
+                </span>
+              </div>
+              <p className="text-xs text-zinc-300 leading-relaxed">
+                Inspirado no lendário preset <em>Gargantua</em> (Atmosphere/Omnisphere). Paredão colossal de 7 supersaws analógicas, sub-grave sísmico de 40 Hz, filtro LFO ultra lento e reverb espacial escuro.
+              </p>
+            </div>
+            <span className="text-[10px] text-rose-400 mt-3 block border-t border-zinc-800 pt-2 font-mono">
+              ★ Wall-of-Sound atmosférico em 1 tecla
+            </span>
+          </div>
+        </div>
+      </div>
+
+
+      {/* ========================================================================= */}
       {/* GUIA DE INSTALAÇÃO RÁPIDA NAS DAWS                                        */}
       {/* ========================================================================= */}
       <div className="bg-black border-2 border-zinc-800 p-6 text-xs text-zinc-400 space-y-2">

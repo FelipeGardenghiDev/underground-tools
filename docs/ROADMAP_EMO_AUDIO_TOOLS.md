@@ -79,7 +79,52 @@ flowchart LR
 
 ---
 
+## 🎹 2.1. A Trindade de Instrumentos Virtuais (VSTi)
+
+Além da suíte de mixagem e efeitos de áudio, desenvolvemos 3 instrumentos virtuais (geradores de som via MIDI) essenciais para compor produções inteiras dentro do Reaper:
+
+```mermaid
+flowchart TD
+    MIDI["🎹 Teclado MIDI / Piano Roll do Reaper"] --> VSTi1["🥁 1. MidwestKit<br/>(Bateria Acústica Crua de Garagem)"]
+    MIDI --> VSTi2["🎹 2. SadBoy Upright<br/>(Piano Vertical de Feltro & Intimista)"]
+    MIDI --> VSTi3["🌌 3. Gargantua Colossus<br/>(Paredão Atmosférico & Drone Synth)"]
+    VSTi1 & VSTi2 & VSTi3 --> Mixer["🎚️ Reaper Mix Tracks"]
+```
+
+---
+
+### 🥁 Instrumento 1: **MidwestKit** *(Raw Acoustic Emo Drum Sampler)*
+* **Objetivo:** O antídoto para as baterias de metal modernas super-processadas e cheias de samples artificiais.
+* **Sonoridade:**
+  - **Caixa (Snare):** Estalo seco e explosivo estilo Ludwig Acrolite / Supraphonic dos anos 90 (*snare crack* à la Jimmy Eat World, The Starting Line e American Football).
+  - **Bumbo (Kick):** Batente de feltro orgânico, punch médio-grave sem aquele som de "click de plástico".
+  - **Pratos (Cymbals):** Hi-hats e Ride Zildjian abafados com fita gaffer para evitar sobras estridentes na mixagem.
+* **Mapeamento:** 100% compatível com o mapa MIDI padrão (General MIDI / BFD / Superior Drummer).
+
+---
+
+### 🎹 Instrumento 2: **SadBoy Upright** *(Felt & Tack Melancholic Piano)*
+* **Objetivo:** O piano acústico intimista e imperfeito que carrega toda a melancolia das introduções e baladas emo.
+* **Sonoridade:**
+  - Cordas abafadas por feltro natural, atenuando agudos metálicos e valorizando os graves aveludados.
+  - Captação binaural com microfones estéreo bem próximos às cordas.
+  - Controle de ruído mecânico de teclas (*Key Release Noise*) e pedal de sustentação.
+
+---
+
+### 🌌 Instrumento 3: **Gargantua Colossus** *(Cinematic Drone & Atmospheric Wall Synth)*
+* **Inspirado diretamente no lendário preset *"Gargantua"* do Spectrasonics Atmosphere / Omnisphere.**
+* **Objetivo:** Entregar aquele som imenso, abissal e cinematográfico que preenche o fundo de faixas de Post-Rock, Shoegaze e Emo moderno (*Deftones, Brand New, Caspian, Bring Me The Horizon, Circa Survive*), sem precisar desembolsar US$ 500 no Omnisphere nem ocupar 60 GB de disco.
+* **Motor de Síntese:**
+  - **7 Osciladores Analógicos Supersaw:** Levemente desafinados entre si para criar uma parede colossal de harmônicos.
+  - **Sub-Oscilador Sísmico (30–60 Hz):** Onda senoidal/triangular de peso gravitacional puro.
+  - **Filtro Low-Pass Ressonante de 4 Polos (24 dB/oct):** Varredura ultra lenta governada por LFO analógico (*slow evolving sweep*).
+  - **Chorus Espacial & Dark Plate Reverb:** Alargamento estéreo infinito para fazer a textura flutuar ao redor das guitarras e vocais.
+
+---
+
 ## 🏗️ 3. Arquitetura de Código & Monorepo
+
 
 Os plugins residem diretamente dentro do repositório [`underground-tools`](https://github.com/FelipeGardenghiDev/underground-tools):
 

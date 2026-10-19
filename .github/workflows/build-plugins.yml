@@ -44,4 +44,14 @@ jobs:
       - name: Run CryTune Verification Tests
         run: ctest --test-dir plugins/cry-tune/build -C Release --output-on-failure
 
+      - name: Upload MidwestAmp CLAP Plugin Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MidwestAmp-${{ matrix.os }}
+          path: |
+            plugins/midwest-amp/build/MidwestAmp.clap
+            plugins/midwest-amp/build/Release/MidwestAmp.clap
+          if-no-files-found: ignore
+
+
 
