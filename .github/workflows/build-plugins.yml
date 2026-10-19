@@ -20,28 +20,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v2
-        with:
-          cmake-version: '3.28.x'
-
       - name: Configure CMake (MidwestAmp)
+        shell: bash
         run: |
           cd plugins/midwest-amp
-          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            cmake -B build -G "Visual Studio 17 2022" -A x64
+          else
+            cmake -B build -DCMAKE_BUILD_TYPE=Release
+          fi
 
       - name: Compile DSP Test Runner
+        shell: bash
         run: |
           cd plugins/midwest-amp
           cmake --build build --config Release
 
       - name: Run DSP Verification Tests
+        shell: bash
         run: |
           cd plugins/midwest-amp/build
-          ctest --output-on-failure -C Release || ./test_midwest_amp || .\Release\test_midwest_amp.exe
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            ./Release/test_midwest_amp.exe
+          else
+            ./test_midwest_amp
+          fi
