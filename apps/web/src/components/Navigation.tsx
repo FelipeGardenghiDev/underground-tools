@@ -12,10 +12,11 @@ import {
   ListMusic,
   Compass,
   Download,
-  Upload
+  Upload,
+  Radio
 } from 'lucide-react';
 
-export type ActiveTab = 'manifesto' | 'stage_plot' | 'setlist' | 'guide' | 'epk' | 'gigs' | 'merch';
+export type ActiveTab = 'manifesto' | 'stage_plot' | 'setlist' | 'guide' | 'epk' | 'gigs' | 'merch' | 'plugins';
 
 interface NavigationProps {
   activeTab: ActiveTab;
@@ -220,6 +221,18 @@ export function Navigation({
           >
             <ShoppingBag className="w-3.5 h-3.5" />
             07. Merch & Pix
+          </button>
+
+          <button
+            onClick={() => setActiveTab('plugins')}
+            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-mono font-bold uppercase transition-all whitespace-nowrap border-2 ${
+              activeTab === 'plugins'
+                ? 'bg-rose-600 text-white border-black shadow-brutal animate-pulse'
+                : 'text-rose-400 border-rose-950/60 hover:text-white hover:bg-rose-950/30'
+            }`}
+          >
+            <Radio className="w-3.5 h-3.5" />
+            08. Emo Audio Tools (VST3)
           </button>
         </div>
       </nav>

@@ -1,0 +1,47 @@
+name: Emo Audio Tools (C++ DSP Plugins CI)
+
+on:
+  push:
+    paths:
+      - 'plugins/**'
+      - '.github/workflows/build-plugins.yml'
+      - 'docs/ROADMAP_EMO_AUDIO_TOOLS.md'
+    branches:
+      - main
+  pull_request:
+    paths:
+      - 'plugins/**'
+      - '.github/workflows/build-plugins.yml'
+
+jobs:
+  build-and-test:
+    name: Build & Verify DSP Engine (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.28.x'
+
+      - name: Configure CMake (MidwestAmp)
+        run: |
+          cd plugins/midwest-amp
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Compile DSP Test Runner
+        run: |
+          cd plugins/midwest-amp
+          cmake --build build --config Release
+
+      - name: Run DSP Verification Tests
+        run: |
+          cd plugins/midwest-amp/build
+          ctest --output-on-failure -C Release || ./test_midwest_amp || .\Release\test_midwest_amp.exe

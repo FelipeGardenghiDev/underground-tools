@@ -16,6 +16,7 @@ O **Underground Tools** é uma plataforma comunitária open-source projetada par
 4. **Press Kit Eletrônico (EPK)**: Bio curta (para flyers/cartazes e redes sociais), release completo para zines e curadorias de festivais, e download direto de fotos oficiais em alta resolução (300 DPI).
 5. **Agenda de Shows (Tour Dates)**: Controle de datas, horários de abertura de portas, ingressos (Sympla, Shotgun etc.), localização no Maps e controle de shows esgotados (*Sold Out*).
 6. **Vitrine de Merch & Pix Direto**: Catálogo de camisetas, fitas K7, vinil e patches com geração de Pix e fechamento direto no WhatsApp da banda (zero taxas de plataformas intermediárias).
+7. **Emo Audio Tools (Plugins VST3/CLAP)**: Suíte de plugins de áudio abertos e sem iLok para produção musical independente, iniciando com o **MidwestAmp** (simulador valvulado e gabinete com canais Kinsella Clean, 90s Crunch e Black Parade Wall).
 
 ---
 
@@ -38,6 +39,8 @@ underground-tools/
 │   └── web/                   # Next.js 16 (Turbopack) + Tailwind CSS v4 + TypeScript
 ├── packages/
 │   └── shared-types/          # Tipos de domínio compartilhados (Banda, Rider, Stage, Merch)
+├── plugins/                   # 🎛️ Emo Audio Tools (Plugins VST3 / CLAP nativos em C++)
+│   └── midwest-amp/           # Tube Amp Sim + Cabinet IR
 ├── pnpm-workspace.yaml
 ├── package.json
 └── LICENSE                    # Licença MIT (100% Livre)

@@ -11,6 +11,7 @@ import { EpkView } from '@/components/epk/EpkView';
 import { GigManager } from '@/components/shows/GigManager';
 import { MerchPixStore } from '@/components/merch/MerchPixStore';
 import { ManifestoView } from '@/components/manifesto/ManifestoView';
+import { EmoPluginsView } from '@/components/plugins/EmoPluginsView';
 import {
   loadStoredData,
   saveStoredData,
@@ -230,6 +231,9 @@ export default function Home() {
             onUpdateMerch={(merch) => setData({ ...data, merch })}
           />
         )}
+
+        {/* TAB 8: EMO AUDIO TOOLS (PLUGINS VST3/CLAP) */}
+        {activeTab === 'plugins' && <EmoPluginsView />}
       </main>
 
       {/* ========================================================================= */}
