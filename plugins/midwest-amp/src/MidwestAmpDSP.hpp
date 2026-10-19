@@ -134,7 +134,12 @@ public:
         setSampleRate(44100.0f);
     }
 
+    void prepare(float sr) {
+        setSampleRate(sr);
+    }
+
     void setSampleRate(float sr) {
+
         sampleRate = (sr > 1000.0f) ? sr : 44100.0f;
         updateFilters();
     }
@@ -147,7 +152,14 @@ public:
     void setBass(float val) { bass = std::clamp(val, 0.0f, 1.0f); updateFilters(); }
     void setMiddle(float val) { middle = std::clamp(val, 0.0f, 1.0f); updateFilters(); }
     void setTreble(float val) { treble = std::clamp(val, 0.0f, 1.0f); updateFilters(); }
+    void setToneStack(float b, float m, float t) {
+        bass = std::clamp(b, 0.0f, 1.0f);
+        middle = std::clamp(m, 0.0f, 1.0f);
+        treble = std::clamp(t, 0.0f, 1.0f);
+        updateFilters();
+    }
     void setPresence(float val) { presence = std::clamp(val, 0.0f, 1.0f); updateFilters(); }
+
     void setMasterVolumeDb(float db) { masterGain = std::pow(10.0f, db / 20.0f); }
     void setBrightSwitch(bool active) { brightActive = active; updateFilters(); }
 
@@ -327,4 +339,7 @@ private:
     }
 };
 
+using MidwestAmpDSP = MidwestAmpEngine;
+
 } // namespace EmoAudioTools
+
