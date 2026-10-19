@@ -29,9 +29,19 @@ jobs:
       - name: Configure CMake (MidwestAmp)
         run: cmake -S plugins/midwest-amp -B plugins/midwest-amp/build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Compile DSP Test Runner
+      - name: Compile MidwestAmp Test Runner & CLI
         run: cmake --build plugins/midwest-amp/build --config Release
 
-      - name: Run DSP Verification Tests
+      - name: Run MidwestAmp Verification Tests
         run: ctest --test-dir plugins/midwest-amp/build -C Release --output-on-failure
+
+      - name: Configure CMake (CryTune)
+        run: cmake -S plugins/cry-tune -B plugins/cry-tune/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Compile CryTune Test Runner
+        run: cmake --build plugins/cry-tune/build --config Release
+
+      - name: Run CryTune Verification Tests
+        run: ctest --test-dir plugins/cry-tune/build -C Release --output-on-failure
+
 

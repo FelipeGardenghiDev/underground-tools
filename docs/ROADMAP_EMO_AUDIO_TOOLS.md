@@ -117,8 +117,14 @@ Toda vez que uma nova versão for publicada no repositório, o GitHub Actions ex
 
 ---
 
-## 🎯 5. Próximos Passos de Execução
+## 🎯 5. Status de Execução & Próximos Passos
 
-1. **Passo 1:** Criar a pasta base `plugins/midwest-amp` com a modelagem do motor de pré-amplificador, equalizador tone stack passivo e convolutor de gabinete.
-2. **Passo 2:** Fornecer os impulsos de áudio de gabinetes clássicos embutidos (*Midwest 2x12 Clean, British 4x12 Greenback, American 4x12 V30*).
-3. **Passo 3:** Criar a página de apresentação e download em `apps/web/src/app/plugins/page.tsx` no visual zine do Underground Tools.
+* [x] **MidwestAmp (Motor DSP C++):** Modelagem não-linear de tríodos 12AX7 (*Kinsella Clean*, *Emo 90s Crunch*, *Screamo Wall*), Tone Stack FMV passivo interativo, chave Bright, emulação de falantes 2x12 e 4x12, limitador de segurança.
+* [x] **MidwestAmp CLI & WavHelper:** Utilitário standalone de linha de comando para reamping offline de arquivos WAV e sintetizador de acordes em afinação DAEAC#E.
+* [x] **CryTune (Motor DSP C++):** Detecção de pitch em tempo real via algoritmo YIN, quantização musical para afinações Midwest Emo (*DAEAC#E* e *FACGCE*), retune speed configurável (0ms hard snap a 80ms natural), filtro Air Presence a 10.5 kHz.
+* [x] **Pipeline CI/CD Multi-OS:** GitHub Actions compilando e validando testes unitários nativamente no Ubuntu, macOS e Windows.
+* [x] **Vitrine Web Underground Tools:** Interface interativa estilo zine com controles e simulação em tempo real de ambos os plugins.
+* [ ] **Plugin 3: ScreamoPunch:** Compressor de 2 botões (*Punch* e *Smash*) com saturação harmônica de fita e mixbus glue.
+* [ ] **Plugin 4: DrownSpace:** Reverb cavernoso com auto-ducking e modulação tape flutter.
+* [ ] **Plugin 5: RawMaster:** Maximizer LUFS com medição em tempo real e ceiling -0.3 dB True Peak.
+

@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 
 export function EmoPluginsView() {
+  const [activePluginTab, setActivePluginTab] = useState<'midwest-amp' | 'cry-tune'>('midwest-amp');
+
   // Estado do simulador interativo do MidwestAmp
   const [selectedChannel, setSelectedChannel] = useState<'clean' | 'crunch' | 'lead'>('clean');
   const [selectedCab, setSelectedCab] = useState<'2x12' | 'greenback' | 'v30'>('2x12');
@@ -28,6 +30,13 @@ export function EmoPluginsView() {
   const [trebleVal, setTrebleVal] = useState(70);
   const [presenceVal, setPresenceVal] = useState(55);
   const [brightActive, setBrightActive] = useState(true);
+
+  // Estado do simulador interativo do CryTune
+  const [cryScale, setCryScale] = useState<'midwest-e' | 'chromatic' | 'd-minor' | 'pentatonic'>('midwest-e');
+  const [retuneSpeed, setRetuneSpeed] = useState(20);
+  const [airPresence, setAirPresence] = useState(4.5);
+  const [selectedNote, setSelectedNote] = useState('E4 (335 Hz detuned)');
+
 
   return (
     <div className="space-y-10 font-mono">
@@ -63,217 +72,424 @@ export function EmoPluginsView() {
       </div>
 
       {/* ========================================================================= */}
-      {/* DESTAQUE PRINCIPAL: MIDWESTAMP (FLAGSHIP TUBE AMP SIMULATOR)              */}
+      {/* SELETOR DE PLUGIN INTERATIVO                                              */}
       {/* ========================================================================= */}
-      <div className="bg-[#121217] border-4 border-black p-6 md:p-8 shadow-brutal relative">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b-2 border-zinc-800 pb-4 mb-6">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="bg-yellow-400 text-black px-2 py-0.5 text-xs font-bold uppercase">
-                FLAGSHIP 01
-              </span>
-              <h2 className="font-stencil text-3xl md:text-4xl text-zinc-50 tracking-wider">
-                MIDWESTAMP // TUBE AMP &amp; CAB IR
-              </h2>
-            </div>
-            <p className="text-xs text-zinc-400 mt-1">
-              Simulador valvulado de guitarra e baixo focado em afinações abertas, crunch dinâmico e distorção massiva dos anos 2000.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <a
-              href="https://github.com/FelipeGardenghiDev/underground-tools/tree/main/plugins/midwest-amp"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold px-4 py-2 border-2 border-black shadow-brutal flex items-center gap-1.5 transition-all"
-            >
-              <ExternalLink className="w-3.5 h-3.5" /> Código C++ no GitHub
-            </a>
-          </div>
-        </div>
-
-        {/* Chassis Frontal do Amplificador (Simulador Interativo) */}
-        <div className="bg-[#1a1a22] border-4 border-zinc-950 p-6 shadow-inner rounded-sm relative overflow-hidden">
-          {/* Tolex Texture Accent */}
-          <div className="border-b-2 border-zinc-800 pb-4 mb-6 flex flex-wrap justify-between items-center gap-4">
-            {/* Seletor de Canal */}
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] text-zinc-400 uppercase font-bold">CANAL:</span>
-              <div className="flex bg-black border-2 border-zinc-800 p-1">
-                <button
-                  onClick={() => { setSelectedChannel('clean'); setDriveVal(25); }}
-                  className={`px-3 py-1 text-xs font-bold uppercase transition-all ${
-                    selectedChannel === 'clean' ? 'bg-yellow-400 text-black' : 'text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  1. Kinsella Clean
-                </button>
-                <button
-                  onClick={() => { setSelectedChannel('crunch'); setDriveVal(55); }}
-                  className={`px-3 py-1 text-xs font-bold uppercase transition-all ${
-                    selectedChannel === 'crunch' ? 'bg-rose-600 text-white' : 'text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  2. Emo 90s Crunch
-                </button>
-                <button
-                  onClick={() => { setSelectedChannel('lead'); setDriveVal(90); }}
-                  className={`px-3 py-1 text-xs font-bold uppercase transition-all ${
-                    selectedChannel === 'lead' ? 'bg-purple-600 text-white' : 'text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  3. Black Parade Wall
-                </button>
-              </div>
-            </div>
-
-            {/* Chave Bright */}
-            <button
-              onClick={() => setBrightActive(!brightActive)}
-              className={`px-3 py-1 text-xs font-bold border-2 border-black shadow-brutal-sm uppercase transition-all ${
-                brightActive ? 'bg-yellow-400 text-black' : 'bg-zinc-800 text-zinc-400'
-              }`}
-            >
-              BRIGHT: {brightActive ? 'LIGADO (+4dB)' : 'DESLIGADO'}
-            </button>
-          </div>
-
-          {/* Painel de Knobs Virtuais */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 text-center">
-            {/* Drive */}
-            <div className="bg-black/60 border border-zinc-800 p-3">
-              <span className="text-[10px] text-zinc-400 uppercase block font-bold">DRIVE</span>
-              <span className="text-xl font-mono text-rose-500 font-bold">{driveVal}%</span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={driveVal}
-                onChange={(e) => setDriveVal(Number(e.target.value))}
-                className="w-full mt-2 accent-rose-500 cursor-pointer h-1.5 bg-zinc-800 rounded-lg"
-              />
-            </div>
-
-            {/* Bass */}
-            <div className="bg-black/60 border border-zinc-800 p-3">
-              <span className="text-[10px] text-zinc-400 uppercase block font-bold">BASS</span>
-              <span className="text-xl font-mono text-zinc-200 font-bold">{bassVal}%</span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={bassVal}
-                onChange={(e) => setBassVal(Number(e.target.value))}
-                className="w-full mt-2 accent-yellow-400 cursor-pointer h-1.5 bg-zinc-800 rounded-lg"
-              />
-            </div>
-
-            {/* Middle */}
-            <div className="bg-black/60 border border-zinc-800 p-3">
-              <span className="text-[10px] text-zinc-400 uppercase block font-bold">MIDDLE</span>
-              <span className="text-xl font-mono text-zinc-200 font-bold">{midVal}%</span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={midVal}
-                onChange={(e) => setMidVal(Number(e.target.value))}
-                className="w-full mt-2 accent-yellow-400 cursor-pointer h-1.5 bg-zinc-800 rounded-lg"
-              />
-            </div>
-
-            {/* Treble */}
-            <div className="bg-black/60 border border-zinc-800 p-3">
-              <span className="text-[10px] text-zinc-400 uppercase block font-bold">TREBLE</span>
-              <span className="text-xl font-mono text-zinc-200 font-bold">{trebleVal}%</span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={trebleVal}
-                onChange={(e) => setTrebleVal(Number(e.target.value))}
-                className="w-full mt-2 accent-yellow-400 cursor-pointer h-1.5 bg-zinc-800 rounded-lg"
-              />
-            </div>
-
-            {/* Presence */}
-            <div className="bg-black/60 border border-zinc-800 p-3">
-              <span className="text-[10px] text-zinc-400 uppercase block font-bold">PRESENCE</span>
-              <span className="text-xl font-mono text-cyan-400 font-bold">{presenceVal}%</span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={presenceVal}
-                onChange={(e) => setPresenceVal(Number(e.target.value))}
-                className="w-full mt-2 accent-cyan-400 cursor-pointer h-1.5 bg-zinc-800 rounded-lg"
-              />
-            </div>
-          </div>
-
-          {/* Seletor de Gabinete IR Embutido */}
-          <div className="mt-6 pt-4 border-t-2 border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2">
-              <span className="text-zinc-400 font-bold uppercase">GABINETE IR:</span>
-              <div className="flex flex-wrap gap-1.5">
-                <button
-                  onClick={() => setSelectedCab('2x12')}
-                  className={`px-2.5 py-1 border transition-all ${
-                    selectedCab === '2x12' ? 'bg-zinc-200 text-black font-bold border-black' : 'bg-black text-zinc-400 border-zinc-800 hover:text-white'
-                  }`}
-                >
-                  Midwest 2x12 Open Back (Jensens)
-                </button>
-                <button
-                  onClick={() => setSelectedCab('greenback')}
-                  className={`px-2.5 py-1 border transition-all ${
-                    selectedCab === 'greenback' ? 'bg-zinc-200 text-black font-bold border-black' : 'bg-black text-zinc-400 border-zinc-800 hover:text-white'
-                  }`}
-                >
-                  British 4x12 Greenback
-                </button>
-                <button
-                  onClick={() => setSelectedCab('v30')}
-                  className={`px-2.5 py-1 border transition-all ${
-                    selectedCab === 'v30' ? 'bg-zinc-200 text-black font-bold border-black' : 'bg-black text-zinc-400 border-zinc-800 hover:text-white'
-                  }`}
-                >
-                  American 4x12 Vintage 30
-                </button>
-              </div>
-            </div>
-
-            <div className="text-[11px] font-mono text-zinc-400">
-              Limitador Brickwall Master: <span className="text-emerald-400 font-bold">-0.1 dB True Peak</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Detalhes de Instalação e Downloads */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 bg-black p-4 border-2 border-zinc-800">
-          <div>
-            <span className="text-xs font-bold text-zinc-200 uppercase block">
-              DOWNLOADS DISPONÍVEIS VIA GITHUB RELEASES (CI/CD):
-            </span>
-            <span className="text-[11px] text-zinc-400">
-              Formatos VST3 &amp; CLAP nativos de 64-bits para Windows, macOS e Linux.
-            </span>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <a
-              href="https://github.com/FelipeGardenghiDev/underground-tools/actions/workflows/build-plugins.yml"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase px-4 py-2 border-2 border-black shadow-brutal flex items-center gap-2 transition-all"
-            >
-              <Download className="w-4 h-4" />
-              Baixar MidwestAmp (GitHub Release)
-            </a>
-          </div>
-        </div>
+      <div className="flex border-b-4 border-black gap-2">
+        <button
+          onClick={() => setActivePluginTab('midwest-amp')}
+          className={`px-5 py-2.5 text-xs font-bold uppercase tracking-wider border-t-4 border-x-4 border-black transition-all ${
+            activePluginTab === 'midwest-amp'
+              ? 'bg-[#121217] text-yellow-400 border-b-0 -mb-1 shadow-brutal-sm'
+              : 'bg-zinc-900 text-zinc-400 hover:text-white border-zinc-800'
+          }`}
+        >
+          🎸 01. MidwestAmp (Tube Amp &amp; IR)
+        </button>
+        <button
+          onClick={() => setActivePluginTab('cry-tune')}
+          className={`px-5 py-2.5 text-xs font-bold uppercase tracking-wider border-t-4 border-x-4 border-black transition-all ${
+            activePluginTab === 'cry-tune'
+              ? 'bg-[#121217] text-rose-500 border-b-0 -mb-1 shadow-brutal-sm'
+              : 'bg-zinc-900 text-zinc-400 hover:text-white border-zinc-800'
+          }`}
+        >
+          🎙️ 02. CryTune (Vocal Pitch &amp; Air)
+        </button>
       </div>
+
+      {/* ========================================================================= */}
+      {/* PAINEL ATIVO: MIDWESTAMP OU CRYTUNE                                      */}
+      {/* ========================================================================= */}
+      {activePluginTab === 'midwest-amp' ? (
+        <div className="bg-[#121217] border-4 border-black p-6 md:p-8 shadow-brutal relative">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b-2 border-zinc-800 pb-4 mb-6">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="bg-yellow-400 text-black px-2 py-0.5 text-xs font-bold uppercase">
+                  FLAGSHIP 01
+                </span>
+                <h2 className="font-stencil text-3xl md:text-4xl text-zinc-50 tracking-wider">
+                  MIDWESTAMP // TUBE AMP &amp; CAB IR
+                </h2>
+              </div>
+              <p className="text-xs text-zinc-400 mt-1">
+                Simulador valvulado de guitarra e baixo focado em afinações abertas, crunch dinâmico e distorção massiva dos anos 2000.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <a
+                href="https://github.com/FelipeGardenghiDev/underground-tools/tree/main/plugins/midwest-amp"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold px-4 py-2 border-2 border-black shadow-brutal flex items-center gap-1.5 transition-all"
+              >
+                <ExternalLink className="w-3.5 h-3.5" /> Código C++ no GitHub
+              </a>
+            </div>
+          </div>
+
+          {/* Chassis Frontal do Amplificador (Simulador Interativo) */}
+          <div className="bg-[#1a1a22] border-4 border-zinc-950 p-6 shadow-inner rounded-sm relative overflow-hidden">
+            {/* Tolex Texture Accent */}
+            <div className="border-b-2 border-zinc-800 pb-4 mb-6 flex flex-wrap justify-between items-center gap-4">
+              {/* Seletor de Canal */}
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-zinc-400 uppercase font-bold">CANAL:</span>
+                <div className="flex bg-black border-2 border-zinc-800 p-1">
+                  <button
+                    onClick={() => { setSelectedChannel('clean'); setDriveVal(25); }}
+                    className={`px-3 py-1 text-xs font-bold uppercase transition-all ${
+                      selectedChannel === 'clean' ? 'bg-yellow-400 text-black' : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    1. Kinsella Clean
+                  </button>
+                  <button
+                    onClick={() => { setSelectedChannel('crunch'); setDriveVal(55); }}
+                    className={`px-3 py-1 text-xs font-bold uppercase transition-all ${
+                      selectedChannel === 'crunch' ? 'bg-rose-600 text-white' : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    2. Emo 90s Crunch
+                  </button>
+                  <button
+                    onClick={() => { setSelectedChannel('lead'); setDriveVal(90); }}
+                    className={`px-3 py-1 text-xs font-bold uppercase transition-all ${
+                      selectedChannel === 'lead' ? 'bg-purple-600 text-white' : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    3. Black Parade Wall
+                  </button>
+                </div>
+              </div>
+
+              {/* Chave Bright */}
+              <button
+                onClick={() => setBrightActive(!brightActive)}
+                className={`px-3 py-1 text-xs font-bold border-2 border-black shadow-brutal-sm uppercase transition-all ${
+                  brightActive ? 'bg-yellow-400 text-black' : 'bg-zinc-800 text-zinc-400'
+                }`}
+              >
+                BRIGHT: {brightActive ? 'LIGADO (+4dB)' : 'DESLIGADO'}
+              </button>
+            </div>
+
+            {/* Painel de Knobs Virtuais */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 text-center">
+              {/* Drive */}
+              <div className="bg-black/60 border border-zinc-800 p-3">
+                <span className="text-[10px] text-zinc-400 uppercase block font-bold">DRIVE</span>
+                <span className="text-xl font-mono text-rose-500 font-bold">{driveVal}%</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={driveVal}
+                  onChange={(e) => setDriveVal(Number(e.target.value))}
+                  className="w-full mt-2 accent-rose-500 cursor-pointer h-1.5 bg-zinc-800 rounded-lg"
+                />
+              </div>
+
+              {/* Bass */}
+              <div className="bg-black/60 border border-zinc-800 p-3">
+                <span className="text-[10px] text-zinc-400 uppercase block font-bold">BASS</span>
+                <span className="text-xl font-mono text-zinc-200 font-bold">{bassVal}%</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={bassVal}
+                  onChange={(e) => setBassVal(Number(e.target.value))}
+                  className="w-full mt-2 accent-yellow-400 cursor-pointer h-1.5 bg-zinc-800 rounded-lg"
+                />
+              </div>
+
+              {/* Middle */}
+              <div className="bg-black/60 border border-zinc-800 p-3">
+                <span className="text-[10px] text-zinc-400 uppercase block font-bold">MIDDLE</span>
+                <span className="text-xl font-mono text-zinc-200 font-bold">{midVal}%</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={midVal}
+                  onChange={(e) => setMidVal(Number(e.target.value))}
+                  className="w-full mt-2 accent-yellow-400 cursor-pointer h-1.5 bg-zinc-800 rounded-lg"
+                />
+              </div>
+
+              {/* Treble */}
+              <div className="bg-black/60 border border-zinc-800 p-3">
+                <span className="text-[10px] text-zinc-400 uppercase block font-bold">TREBLE</span>
+                <span className="text-xl font-mono text-zinc-200 font-bold">{trebleVal}%</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={trebleVal}
+                  onChange={(e) => setTrebleVal(Number(e.target.value))}
+                  className="w-full mt-2 accent-yellow-400 cursor-pointer h-1.5 bg-zinc-800 rounded-lg"
+                />
+              </div>
+
+              {/* Presence */}
+              <div className="bg-black/60 border border-zinc-800 p-3">
+                <span className="text-[10px] text-zinc-400 uppercase block font-bold">PRESENCE</span>
+                <span className="text-xl font-mono text-cyan-400 font-bold">{presenceVal}%</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={presenceVal}
+                  onChange={(e) => setPresenceVal(Number(e.target.value))}
+                  className="w-full mt-2 accent-cyan-400 cursor-pointer h-1.5 bg-zinc-800 rounded-lg"
+                />
+              </div>
+            </div>
+
+            {/* Seletor de Gabinete IR Embutido */}
+            <div className="mt-6 pt-4 border-t-2 border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="text-zinc-400 font-bold uppercase">GABINETE IR:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    onClick={() => setSelectedCab('2x12')}
+                    className={`px-2.5 py-1 border transition-all ${
+                      selectedCab === '2x12' ? 'bg-zinc-200 text-black font-bold border-black' : 'bg-black text-zinc-400 border-zinc-800 hover:text-white'
+                    }`}
+                  >
+                    Midwest 2x12 Open Back (Jensens)
+                  </button>
+                  <button
+                    onClick={() => setSelectedCab('greenback')}
+                    className={`px-2.5 py-1 border transition-all ${
+                      selectedCab === 'greenback' ? 'bg-zinc-200 text-black font-bold border-black' : 'bg-black text-zinc-400 border-zinc-800 hover:text-white'
+                    }`}
+                  >
+                    British 4x12 Greenback
+                  </button>
+                  <button
+                    onClick={() => setSelectedCab('v30')}
+                    className={`px-2.5 py-1 border transition-all ${
+                      selectedCab === 'v30' ? 'bg-zinc-200 text-black font-bold border-black' : 'bg-black text-zinc-400 border-zinc-800 hover:text-white'
+                    }`}
+                  >
+                    American 4x12 Vintage 30
+                  </button>
+                </div>
+              </div>
+
+              <div className="text-[11px] font-mono text-zinc-400">
+                Limitador Brickwall Master: <span className="text-emerald-400 font-bold">-0.1 dB True Peak</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Detalhes de Instalação e Downloads */}
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 bg-black p-4 border-2 border-zinc-800">
+            <div>
+              <span className="text-xs font-bold text-zinc-200 uppercase block">
+                DOWNLOADS DISPONÍVEIS VIA GITHUB RELEASES (CI/CD):
+              </span>
+              <span className="text-[11px] text-zinc-400">
+                Formatos VST3 &amp; CLAP nativos de 64-bits para Windows, macOS e Linux.
+              </span>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <a
+                href="https://github.com/FelipeGardenghiDev/underground-tools/actions/workflows/build-plugins.yml"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase px-4 py-2 border-2 border-black shadow-brutal flex items-center gap-2 transition-all"
+              >
+                <Download className="w-4 h-4" />
+                Baixar MidwestAmp (GitHub Release)
+              </a>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* ========================================================================= */
+        /* RACK INTERATIVO: CRYTUNE (VOCAL PITCH CORRECTOR & PRESENCE)               */
+        /* ========================================================================= */
+        <div className="bg-[#121217] border-4 border-black p-6 md:p-8 shadow-brutal relative">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b-2 border-zinc-800 pb-4 mb-6">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="bg-rose-600 text-white px-2 py-0.5 text-xs font-bold uppercase">
+                  TOOL 02
+                </span>
+                <h2 className="font-stencil text-3xl md:text-4xl text-zinc-50 tracking-wider">
+                  CRYTUNE // VOCAL PITCH &amp; AIR PRESENCE
+                </h2>
+              </div>
+              <p className="text-xs text-zinc-400 mt-1">
+                Afinador vocal de baixa latência baseado no algoritmo YIN com fatiamento PSOLA e presença aérea de 10.5 kHz.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <a
+                href="https://github.com/FelipeGardenghiDev/underground-tools/tree/main/plugins/cry-tune"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold px-4 py-2 border-2 border-black shadow-brutal flex items-center gap-1.5 transition-all"
+              >
+                <ExternalLink className="w-3.5 h-3.5" /> Código C++ no GitHub
+              </a>
+            </div>
+          </div>
+
+          <div className="bg-[#181824] border-4 border-zinc-950 p-6 shadow-inner rounded-sm relative">
+            {/* Seletor de Escala */}
+            <div className="border-b-2 border-zinc-800 pb-4 mb-6 flex flex-wrap justify-between items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-zinc-400 uppercase font-bold">ESCALA:</span>
+                <div className="flex flex-wrap bg-black border-2 border-zinc-800 p-1">
+                  <button
+                    onClick={() => setCryScale('midwest-e')}
+                    className={`px-3 py-1 text-xs font-bold uppercase transition-all ${
+                      cryScale === 'midwest-e' ? 'bg-rose-600 text-white' : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    Midwest E Major (DAEAC#E)
+                  </button>
+                  <button
+                    onClick={() => setCryScale('chromatic')}
+                    className={`px-3 py-1 text-xs font-bold uppercase transition-all ${
+                      cryScale === 'chromatic' ? 'bg-yellow-400 text-black' : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    Cromática
+                  </button>
+                  <button
+                    onClick={() => setCryScale('d-minor')}
+                    className={`px-3 py-1 text-xs font-bold uppercase transition-all ${
+                      cryScale === 'd-minor' ? 'bg-purple-600 text-white' : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    D Menor Emo
+                  </button>
+                  <button
+                    onClick={() => setCryScale('pentatonic')}
+                    className={`px-3 py-1 text-xs font-bold uppercase transition-all ${
+                      cryScale === 'pentatonic' ? 'bg-cyan-600 text-white' : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    Pentatônica Menor
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Knobs do CryTune */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {/* Retune Speed */}
+              <div className="bg-black/60 border border-zinc-800 p-4 text-center">
+                <span className="text-[10px] text-zinc-400 uppercase block font-bold">RETUNE SPEED</span>
+                <span className="text-2xl font-mono text-rose-500 font-bold">{retuneSpeed} ms</span>
+                <span className="text-[10px] text-zinc-500 block mb-2">
+                  {retuneSpeed === 0 ? '⚡ 0ms (Hard Snap 2000s)' : retuneSpeed <= 30 ? '🔥 Rápido & Firme' : '🍃 Afinação Natural'}
+                </span>
+                <input
+                  type="range"
+                  min="0"
+                  max="80"
+                  value={retuneSpeed}
+                  onChange={(e) => setRetuneSpeed(Number(e.target.value))}
+                  className="w-full accent-rose-500 cursor-pointer h-1.5 bg-zinc-800 rounded-lg"
+                />
+              </div>
+
+              {/* Air Presence */}
+              <div className="bg-black/60 border border-zinc-800 p-4 text-center">
+                <span className="text-[10px] text-zinc-400 uppercase block font-bold">AIR PRESENCE (10.5 kHz)</span>
+                <span className="text-2xl font-mono text-cyan-400 font-bold">+{airPresence} dB</span>
+                <span className="text-[10px] text-zinc-500 block mb-2">
+                  Brilho para cortar paredão de guitarras
+                </span>
+                <input
+                  type="range"
+                  min="0"
+                  max="9"
+                  step="0.5"
+                  value={airPresence}
+                  onChange={(e) => setAirPresence(Number(e.target.value))}
+                  className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-zinc-800 rounded-lg"
+                />
+              </div>
+
+              {/* Demonstração Interativa de Quantização */}
+              <div className="bg-black/60 border border-zinc-800 p-4">
+                <span className="text-[10px] text-zinc-400 uppercase block font-bold text-center">
+                  TESTE DE QUANTIZAÇÃO AO VIVO
+                </span>
+                <div className="mt-2 text-xs space-y-1">
+                  <div className="text-zinc-400">
+                    Entrada: <span className="text-yellow-400 font-bold">{selectedNote}</span>
+                  </div>
+                  <div className="text-zinc-400">
+                    Corrigido para:{' '}
+                    <span className="text-emerald-400 font-bold">
+                      {selectedNote.includes('335') ? 'E4 (329.63 Hz) [0 cents]' :
+                       selectedNote.includes('445') ? 'A4 (440.00 Hz) [0 cents]' :
+                       selectedNote.includes('349') ? (cryScale === 'midwest-e' ? 'E4 / F#4 (Escala E)' : 'F4 (349.23 Hz)') :
+                       'Nota afinada'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-1.5 mt-3">
+                  <button
+                    onClick={() => setSelectedNote('E4 (335 Hz detuned)')}
+                    className="px-2 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-[10px] font-bold border border-zinc-700"
+                  >
+                    Cantar E4 (335 Hz)
+                  </button>
+                  <button
+                    onClick={() => setSelectedNote('A4 (445 Hz detuned)')}
+                    className="px-2 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-[10px] font-bold border border-zinc-700"
+                  >
+                    Cantar A4 (445 Hz)
+                  </button>
+                  <button
+                    onClick={() => setSelectedNote('F4 (349 Hz fora)')}
+                    className="px-2 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-[10px] font-bold border border-zinc-700 col-span-2"
+                  >
+                    Nota Fora da Escala (F4 349 Hz)
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 bg-black p-4 border-2 border-zinc-800">
+            <div>
+              <span className="text-xs font-bold text-zinc-200 uppercase block">
+                DOWNLOAD CRYTUNE VIA GITHUB CI/CD:
+              </span>
+              <span className="text-[11px] text-zinc-400">
+                Compilação automática multiplataforma (Windows .vst3, macOS, Linux).
+              </span>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <a
+                href="https://github.com/FelipeGardenghiDev/underground-tools/actions/workflows/build-plugins.yml"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase px-4 py-2 border-2 border-black shadow-brutal flex items-center gap-2 transition-all"
+              >
+                <Download className="w-4 h-4" />
+                Baixar CryTune (GitHub Release)
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {/* ========================================================================= */}
       {/* ROADMAP: OS 5 PLUGINS DA SUÍTE EMO AUDIO TOOLS                            */}
@@ -294,11 +510,11 @@ export function EmoPluginsView() {
             <div className="flex justify-between items-start mb-2">
               <span className="font-stencil text-xl text-yellow-400">01. MIDWESTAMP</span>
               <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 font-bold uppercase">
-                MOTOR C++ PRONTO
+                MOTOR C++ &amp; CLI PRONTOS
               </span>
             </div>
             <p className="text-xs text-zinc-300 leading-relaxed">
-              Simulador de amplificador valvulado e gabinete com 3 canais lendários: <em>Kinsella Clean</em> para afinações abertas, <em>Emo 90s Crunch</em> e <em>Black Parade Wall</em>.
+              Simulador valvulado com 3 canais lendários: <em>Kinsella Clean</em> para afinações abertas, <em>Emo 90s Crunch</em> e <em>Black Parade Wall</em>. Inclui utilitário CLI para reamping offline de arquivos WAV.
             </p>
           </div>
 
@@ -306,14 +522,15 @@ export function EmoPluginsView() {
           <div className="bg-[#121217] border-2 border-zinc-800 p-5 shadow-brutal">
             <div className="flex justify-between items-start mb-2">
               <span className="font-stencil text-xl text-rose-500">02. CRYTUNE</span>
-              <span className="text-[10px] bg-yellow-500/20 text-yellow-400 border border-yellow-500/40 px-2 py-0.5 font-bold uppercase">
-                EM DESENVOLVIMENTO
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 font-bold uppercase">
+                MOTOR C++ PRONTO
               </span>
             </div>
             <p className="text-xs text-zinc-300 leading-relaxed">
-              Afinador vocal de baixa latência baseado no algoritmo YIN e fatiamento PSOLA. De Midwest Emo natural e emotivo ao hard-tune dramático de 2000s Post-Hardcore.
+              Afinador vocal de baixa latência baseado no algoritmo YIN, fatiamento PSOLA e filtro Air Presence a 10.5 kHz. Calibrado com afinações Midwest Emo (DAEAC#E).
             </p>
           </div>
+
 
           {/* Plugin 3: ScreamoPunch */}
           <div className="bg-[#121217] border-2 border-zinc-800 p-5 shadow-brutal">
