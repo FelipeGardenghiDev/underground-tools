@@ -21,6 +21,12 @@ enum ParamIds : clap_id {
     PARAM_COUNT = 9
 };
 
+static const char* s_midwest_amp_features[] = {
+    CLAP_PLUGIN_FEATURE_AUDIO_EFFECT,
+    CLAP_PLUGIN_FEATURE_DISTORTION,
+    nullptr
+};
+
 static const clap_plugin_descriptor_t s_midwest_amp_desc = {
     CLAP_VERSION,
     "org.undergroundtools.midwestamp",
@@ -31,12 +37,9 @@ static const clap_plugin_descriptor_t s_midwest_amp_desc = {
     "",
     "1.0.0",
     "Midwest Emo & Screamo Tube Amp Simulator + Cab IR",
-    (const char*[]) {
-        CLAP_PLUGIN_FEATURE_AUDIO_EFFECT,
-        CLAP_PLUGIN_FEATURE_DISTORTION,
-        nullptr
-    }
+    s_midwest_amp_features
 };
+
 
 struct MidwestAmpClap {
     clap_plugin_t plugin;
