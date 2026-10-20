@@ -1,6 +1,6 @@
 # 🖤 ROADMAP: EMO AUDIO TOOLS — UNDERGROUND TOOLS
 
-> **Armas de estúdio e produção musical para a cena independente.**  
+> **Equipamentos de estúdio e produção musical para a cena independente.**  
 > *100% Código Aberto • Sem Paywall • Sem iLok / Dongles • Sem Assinatura • Sem Firula Corporativa.*
 
 ---

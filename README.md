@@ -1,5 +1,5 @@
 # ⚡ UNDERGROUND TOOLS
-> **Armas de palco & ferramentas DIY para bandas independentes.**  
+> **Equipamentos de estúdio, plugins VST3/CLAP e ferramentas DIY para bandas independentes.**  
 > *100% Código Aberto • Sem Paywall • Sem Firula Corporativa • Sem cara de IA.*
 
 ---
