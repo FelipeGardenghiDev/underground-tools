@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { InputListChannel, StageItem, TechRider } from '@/types';
-import { Printer, Phone, Mail, User, Clock, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { Printer, Phone, Mail, User, Clock, AlertTriangle, ShieldCheck, Share2, Check } from 'lucide-react';
+import { generateShareableUrl } from '@/lib/share-link';
 
 interface TechRiderSheetProps {
   rider: TechRider;
@@ -10,6 +11,7 @@ interface TechRiderSheetProps {
   inputList: InputListChannel[];
   onUpdateRider: (rider: TechRider) => void;
   onPrint: () => void;
+  onToast?: (msg: string) => void;
 }
 
 export function TechRiderSheet({
@@ -18,7 +20,32 @@ export function TechRiderSheet({
   inputList,
   onUpdateRider,
   onPrint,
+  onToast,
 }: TechRiderSheetProps) {
+  const [isSharing, setIsSharing] = useState(false);
+
+  const handleShareLink = async () => {
+    try {
+      setIsSharing(true);
+      const url = await generateShareableUrl({
+        version: '1.0',
+        sharedAt: new Date().toISOString(),
+        bandName: rider.bandName || 'Banda Underground',
+        stageItems,
+        inputList,
+        techRider: rider,
+      });
+      await navigator.clipboard.writeText(url);
+      if (onToast) {
+        onToast('Link do Rider Técnico copiado com sucesso!');
+      }
+      setTimeout(() => setIsSharing(false), 2500);
+    } catch (err) {
+      console.error(err);
+      setIsSharing(false);
+    }
+  };
+
   const handleChange = (field: keyof TechRider, value: any) => {
     onUpdateRider({ ...rider, [field]: value });
   };
@@ -36,13 +63,25 @@ export function TechRiderSheet({
           </p>
         </div>
 
-        <button
-          onClick={onPrint}
-          className="bg-yellow-400 hover:bg-yellow-300 text-black font-mono font-bold text-xs uppercase px-4 py-2.5 border-2 border-black shadow-brutal flex items-center gap-2 active:scale-95 transition-all"
-        >
-          <Printer className="w-4 h-4" />
-          Imprimir / Salvar PDF (A4)
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleShareLink}
+            disabled={isSharing}
+            className="bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs uppercase px-4 py-2.5 border-2 border-black shadow-brutal flex items-center gap-2 active:scale-95 transition-all"
+            title="Copiar link compartilhável para enviar por WhatsApp"
+          >
+            {isSharing ? <Check className="w-4 h-4 text-white" /> : <Share2 className="w-4 h-4 text-white" />}
+            <span>{isSharing ? 'Link Copiado!' : 'Compartilhar Link'}</span>
+          </button>
+
+          <button
+            onClick={onPrint}
+            className="bg-yellow-400 hover:bg-yellow-300 text-black font-mono font-bold text-xs uppercase px-4 py-2.5 border-2 border-black shadow-brutal flex items-center gap-2 active:scale-95 transition-all"
+          >
+            <Printer className="w-4 h-4" />
+            Imprimir / Salvar PDF (A4)
+          </button>
+        </div>
       </div>
 
       {/* RIDER SHEET (Dual purpose: editable on screen, cleanly printed on paper) */}

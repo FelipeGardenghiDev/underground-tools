@@ -19,6 +19,7 @@ import {
   importBackupFile,
   AppStoredData,
 } from '@/lib/storage';
+import { decodeShareData, ShareableStageData } from '@/lib/share-link';
 import { 
   Sliders, 
   ListOrdered, 
@@ -27,13 +28,16 @@ import {
   Download, 
   CheckCircle2, 
   Sparkles,
-  Layers
+  Layers,
+  Share2,
+  ExternalLink
 } from 'lucide-react';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('stage_plot');
   const [stageSubTab, setStageSubTab] = useState<'canvas' | 'input_list' | 'rider'>('canvas');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [sharedData, setSharedData] = useState<ShareableStageData | null>(null);
 
   // App Domain State
   const [data, setData] = useState<AppStoredData | null>(null);
@@ -44,12 +48,34 @@ export default function Home() {
     setData(loaded);
   }, []);
 
-  // Save to localStorage on any state change
+  // Check URL Hash for shared stage plot/rider on mount & hashchange (0 cost, 0 database)
   useEffect(() => {
-    if (data) {
+    const handleHash = async () => {
+      if (typeof window === 'undefined') return;
+      const hash = window.location.hash;
+      if (hash.startsWith('#plot=') || hash.startsWith('#rider=')) {
+        const token = hash.replace(/^#(plot|rider)=/, '');
+        const decoded = await decodeShareData(token);
+        if (decoded) {
+          setSharedData(decoded);
+          setActiveTab('stage_plot');
+          setToastMessage(`Modo Convidado: Carregado mapa de "${decoded.bandName}"!`);
+          setTimeout(() => setToastMessage(null), 3500);
+        }
+      }
+    };
+
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
+  // Save to localStorage on local state change (only if not viewing shared data)
+  useEffect(() => {
+    if (data && !sharedData) {
       saveStoredData(data);
     }
-  }, [data]);
+  }, [data, sharedData]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -73,10 +99,38 @@ export default function Home() {
     try {
       const imported = await importBackupFile(file);
       setData(imported);
+      setSharedData(null);
       showToast(`Dados da banda "${imported.profile.name}" restaurados!`);
     } catch (err) {
       alert('Arquivo inválido ou corrompido.');
     }
+  };
+
+  // Save shared guest setup to local database (overwriting or adopting it)
+  const handleSaveSharedToLocal = () => {
+    if (!sharedData || !data) return;
+    const merged: AppStoredData = {
+      ...data,
+      profile: {
+        ...data.profile,
+        name: sharedData.bandName || data.profile.name,
+      },
+      stageItems: sharedData.stageItems,
+      inputList: sharedData.inputList || data.inputList,
+      techRider: sharedData.techRider ? { ...data.techRider, ...sharedData.techRider } : data.techRider,
+    };
+    setData(merged);
+    saveStoredData(merged);
+    setSharedData(null);
+    window.history.replaceState(null, '', window.location.pathname);
+    showToast(`Setup de "${sharedData.bandName}" salvo com sucesso no seu Underground Tools!`);
+  };
+
+  // Exit guest shared view
+  const handleExitSharedView = () => {
+    setSharedData(null);
+    window.history.replaceState(null, '', window.location.pathname);
+    showToast('Retornado para os dados locais da sua banda.');
   };
 
   if (!data) {
@@ -86,6 +140,12 @@ export default function Home() {
       </div>
     );
   }
+
+  // Active data sources (either shared link or local storage)
+  const activeBandName = sharedData?.bandName || data.profile.name;
+  const activeStageItems = sharedData?.stageItems || data.stageItems;
+  const activeInputList = sharedData?.inputList || data.inputList;
+  const activeTechRider = sharedData?.techRider ? { ...data.techRider, ...sharedData.techRider } : data.techRider;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#080808] text-zinc-100">
@@ -97,6 +157,41 @@ export default function Home() {
         </div>
       )}
 
+      {/* Guest Mode Shareable Banner */}
+      {sharedData && (
+        <div className="bg-yellow-400 text-black px-4 py-2.5 border-b-4 border-black font-mono flex flex-wrap items-center justify-between gap-3 shadow-brutal z-40 sticky top-0 no-print">
+          <div className="flex items-center gap-2">
+            <span className="bg-black text-yellow-400 text-[10px] font-bold px-2 py-0.5 uppercase tracking-wider border border-black">
+              MODO CONVIDADO // LINK DIRETO
+            </span>
+            <span className="text-xs font-bold uppercase">
+              Visualizando Palco &amp; Rider de: <strong className="underline decoration-2">{activeBandName}</strong>
+            </span>
+            <span className="text-[11px] text-zinc-800 hidden md:inline">
+              (Sem banco de dados • Gerado em {new Date(sharedData.sharedAt).toLocaleDateString('pt-BR')})
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleSaveSharedToLocal}
+              className="bg-black hover:bg-zinc-800 text-white font-bold text-xs uppercase px-3 py-1.5 border-2 border-black shadow-brutal-sm flex items-center gap-1.5 transition-all active:scale-95"
+              title="Copiar este setup para o seu banco local"
+            >
+              <Download className="w-3.5 h-3.5 text-yellow-400" />
+              Salvar no Meu Underground Tools
+            </button>
+
+            <button
+              onClick={handleExitSharedView}
+              className="bg-zinc-200 hover:bg-white text-black font-bold text-xs uppercase px-3 py-1.5 border-2 border-black shadow-brutal-sm transition-all active:scale-95"
+            >
+              Voltar pros Meus Dados
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* App Navigation */}
       <div className="no-print">
         <Navigation
@@ -105,7 +200,7 @@ export default function Home() {
           onPrintRider={handlePrint}
           onExportBackup={handleExportBackup}
           onImportBackup={handleImportBackup}
-          bandName={data.profile.name}
+          bandName={activeBandName}
         />
       </div>
 
@@ -143,7 +238,7 @@ export default function Home() {
                   }`}
                 >
                   <ListOrdered className="w-3.5 h-3.5" />
-                  02. Input List ({data.inputList.length} Canais)
+                  02. Input List ({activeInputList.length} Canais)
                 </button>
 
                 <button
@@ -171,25 +266,48 @@ export default function Home() {
             {/* Sub-tab view */}
             {stageSubTab === 'canvas' && (
               <StageCanvas
-                items={data.stageItems}
-                onUpdateItems={(items) => setData({ ...data, stageItems: items })}
+                items={activeStageItems}
+                onUpdateItems={(items) => {
+                  if (sharedData) {
+                    setSharedData({ ...sharedData, stageItems: items });
+                  } else {
+                    setData({ ...data, stageItems: items });
+                  }
+                }}
+                bandName={activeBandName}
+                inputList={activeInputList}
+                techRider={activeTechRider}
+                onToast={showToast}
               />
             )}
 
             {stageSubTab === 'input_list' && (
               <InputListTable
-                channels={data.inputList}
-                onUpdateChannels={(channels) => setData({ ...data, inputList: channels })}
+                channels={activeInputList}
+                onUpdateChannels={(channels) => {
+                  if (sharedData) {
+                    setSharedData({ ...sharedData, inputList: channels });
+                  } else {
+                    setData({ ...data, inputList: channels });
+                  }
+                }}
               />
             )}
 
             {stageSubTab === 'rider' && (
               <TechRiderSheet
-                rider={data.techRider}
-                stageItems={data.stageItems}
-                inputList={data.inputList}
-                onUpdateRider={(rider) => setData({ ...data, techRider: rider })}
+                rider={activeTechRider}
+                stageItems={activeStageItems}
+                inputList={activeInputList}
+                onUpdateRider={(rider) => {
+                  if (sharedData) {
+                    setSharedData({ ...sharedData, techRider: rider });
+                  } else {
+                    setData({ ...data, techRider: rider });
+                  }
+                }}
                 onPrint={handlePrint}
+                onToast={showToast}
               />
             )}
           </div>
@@ -244,19 +362,19 @@ export default function Home() {
           {/* Document Header */}
           <div className="border-b-4 border-black pb-4 mb-6 flex justify-between items-start">
             <div>
-              <h1 className="text-4xl font-black uppercase tracking-tight">{data.techRider.bandName}</h1>
+              <h1 className="text-4xl font-black uppercase tracking-tight">{activeBandName}</h1>
               <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-800">
-                RIDER TÉCNICO & MAPA DE PALCO // STAGE PLOT
+                RIDER TÉCNICO &amp; MAPA DE PALCO // STAGE PLOT
               </h2>
               <p className="text-[10px] text-neutral-600 mt-1">
-                Documento emitido via Underground Tools (underground-tools) • Para F.O.H. & Operadores de Palco
+                Documento emitido via Underground Tools (underground-tools) • Para F.O.H. &amp; Operadores de Palco
               </p>
             </div>
             <div className="text-right border-2 border-black p-2 text-[10px]">
               <div className="font-bold">PRODUÇÃO DE ESTRADA:</div>
-              <div>{data.techRider.contactName} ({data.techRider.contactRole})</div>
-              <div>Tel: {data.techRider.contactPhone}</div>
-              <div>Email: {data.techRider.contactEmail}</div>
+              <div>{activeTechRider.contactName} ({activeTechRider.contactRole})</div>
+              <div>Tel: {activeTechRider.contactPhone}</div>
+              <div>Email: {activeTechRider.contactEmail}</div>
             </div>
           </div>
 
@@ -264,11 +382,11 @@ export default function Home() {
           <div className="grid grid-cols-3 gap-3 border-2 border-black p-3 mb-6 bg-neutral-100">
             <div>
               <span className="font-bold block uppercase text-[10px]">Passagem de Som:</span>
-              <span>Mínimo {data.techRider.soundCheckDurationMin} minutos</span>
+              <span>Mínimo {activeTechRider.soundCheckDurationMin} minutos</span>
             </div>
             <div>
               <span className="font-bold block uppercase text-[10px]">Vias de Monitor:</span>
-              <span>{data.techRider.monitorMixesCount} vias independentes</span>
+              <span>{activeTechRider.monitorMixesCount} vias independentes</span>
             </div>
             <div>
               <span className="font-bold block uppercase text-[10px]">Aterramento elétrico:</span>
@@ -279,7 +397,7 @@ export default function Home() {
           {/* Input List Table for Print */}
           <div className="mb-6">
             <h3 className="font-bold uppercase tracking-wider mb-2 border-b-2 border-black pb-1">
-              INPUT LIST // TABELA DE CANAIS ({data.inputList.length} CANAIS)
+              INPUT LIST // TABELA DE CANAIS ({activeInputList.length} CANAIS)
             </h3>
             <table className="w-full border-collapse border-2 border-black text-[11px]">
               <thead>
@@ -293,7 +411,7 @@ export default function Home() {
                 </tr>
               </thead>
               <tbody>
-                {data.inputList.map((ch) => (
+                {activeInputList.map((ch) => (
                   <tr key={ch.channelNumber} className="border-b border-black">
                     <td className="border border-black p-1 text-center font-bold">
                       {String(ch.channelNumber).padStart(2, '0')}
@@ -320,7 +438,7 @@ export default function Home() {
               <div className="absolute top-1 inset-x-0 text-center text-[9px] text-neutral-500 uppercase">
                 ▲ FUNDO DE PALCO // PAREDE ▲
               </div>
-              {data.stageItems.map((item) => (
+              {activeStageItems.map((item) => (
                 <div
                   key={item.id}
                   style={{
@@ -343,11 +461,11 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-4 text-[10px]">
             <div className="border border-black p-2">
               <strong className="block uppercase mb-1">Requisitos de P.A.:</strong>
-              <p>{data.techRider.paRequirements}</p>
+              <p>{activeTechRider.paRequirements}</p>
             </div>
             <div className="border border-black p-2">
               <strong className="block uppercase mb-1">Requisitos de Monitor:</strong>
-              <p>{data.techRider.monitorRequirements}</p>
+              <p>{activeTechRider.monitorRequirements}</p>
             </div>
           </div>
         </div>

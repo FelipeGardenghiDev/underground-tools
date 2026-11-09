@@ -17,12 +17,19 @@ import {
   LayoutTemplate,
   Copy,
   Check,
+  Share2,
   Image as ImageIcon
 } from 'lucide-react';
+import { InputListChannel, TechRider } from '@/types';
+import { generateShareableUrl } from '@/lib/share-link';
 
 interface StageCanvasProps {
   items: StageItem[];
   onUpdateItems: (items: StageItem[]) => void;
+  bandName?: string;
+  inputList?: InputListChannel[];
+  techRider?: TechRider;
+  onToast?: (msg: string) => void;
 }
 
 const PRESET_GEAR: { type: StageItemCategory; name: string; shortLabel: string; defaultChannel?: number }[] = [
@@ -37,15 +44,46 @@ const PRESET_GEAR: { type: StageItemCategory; name: string; shortLabel: string; 
   { type: 'keyboard', name: 'Teclado / Synth', shortLabel: 'TECLADO' },
 ];
 
-export function StageCanvas({ items, onUpdateItems }: StageCanvasProps) {
+export function StageCanvas({ 
+  items, 
+  onUpdateItems,
+  bandName,
+  inputList,
+  techRider,
+  onToast,
+}: StageCanvasProps) {
   const [selectedId, setSelectedId] = useState<string | null>(items[0]?.id || null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragItemId, setDragItemId] = useState<string | null>(null);
   const [showStamps, setShowStamps] = useState(true);
   const [isCopying, setIsCopying] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
 
   const selectedItem = items.find((i) => i.id === selectedId) || null;
+
+  // Handle shareable link generation
+  const handleShareLink = async () => {
+    try {
+      setIsSharing(true);
+      const url = await generateShareableUrl({
+        version: '1.0',
+        sharedAt: new Date().toISOString(),
+        bandName: bandName || 'Banda Underground',
+        stageItems: items,
+        inputList: inputList,
+        techRider: techRider,
+      });
+      await navigator.clipboard.writeText(url);
+      if (onToast) {
+        onToast('Link compartilhável copiado! Qualquer técnico ou festival pode abrir direto no celular sem login.');
+      }
+      setTimeout(() => setIsSharing(false), 2500);
+    } catch (err) {
+      console.error(err);
+      setIsSharing(false);
+    }
+  };
 
   // Handle stage drag movement
   const handleMouseDown = (id: string, e: React.MouseEvent) => {
@@ -343,6 +381,16 @@ export function StageCanvas({ items, onUpdateItems }: StageCanvasProps) {
             className="text-[11px] font-mono text-zinc-400 hover:text-white px-2 py-1 border border-zinc-700"
           >
             {showStamps ? 'Ocultar Carimbos' : 'Mostrar Carimbos'}
+          </button>
+
+          <button
+            onClick={handleShareLink}
+            disabled={isSharing}
+            className="bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs uppercase px-3 py-1.5 border-2 border-black shadow-brutal-sm flex items-center gap-1.5 active:scale-95 transition-all"
+            title="Gerar link compartilhável para enviar pelo WhatsApp ao técnico de som ou festival"
+          >
+            {isSharing ? <Check className="w-3.5 h-3.5 text-white" /> : <Share2 className="w-3.5 h-3.5 text-white" />}
+            <span>{isSharing ? 'Link Copiado!' : 'Compartilhar Link'}</span>
           </button>
 
           <button
