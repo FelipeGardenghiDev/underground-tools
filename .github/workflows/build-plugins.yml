@@ -15,7 +15,7 @@ on:
 
 jobs:
   build-and-test:
-    name: Build & Verify DSP Engine (${{ matrix.os }})
+    name: Build & Verify All 5 Plugins (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -26,24 +26,57 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # 1. MidwestAmp
       - name: Configure CMake (MidwestAmp)
         run: cmake -S plugins/midwest-amp -B plugins/midwest-amp/build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Compile MidwestAmp Test Runner & CLI
+      - name: Compile MidwestAmp
         run: cmake --build plugins/midwest-amp/build --config Release
 
       - name: Run MidwestAmp Verification Tests
         run: ctest --test-dir plugins/midwest-amp/build -C Release --output-on-failure
 
+      # 2. CryTune
       - name: Configure CMake (CryTune)
         run: cmake -S plugins/cry-tune -B plugins/cry-tune/build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Compile CryTune Test Runner
+      - name: Compile CryTune
         run: cmake --build plugins/cry-tune/build --config Release
 
       - name: Run CryTune Verification Tests
         run: ctest --test-dir plugins/cry-tune/build -C Release --output-on-failure
 
+      # 3. ScreamoPunch
+      - name: Configure CMake (ScreamoPunch)
+        run: cmake -S plugins/screamo-punch -B plugins/screamo-punch/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Compile ScreamoPunch
+        run: cmake --build plugins/screamo-punch/build --config Release
+
+      - name: Run ScreamoPunch Verification Tests
+        run: ctest --test-dir plugins/screamo-punch/build -C Release --output-on-failure
+
+      # 4. DrownSpace
+      - name: Configure CMake (DrownSpace)
+        run: cmake -S plugins/drown-space -B plugins/drown-space/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Compile DrownSpace
+        run: cmake --build plugins/drown-space/build --config Release
+
+      - name: Run DrownSpace Verification Tests
+        run: ctest --test-dir plugins/drown-space/build -C Release --output-on-failure
+
+      # 5. RawMaster
+      - name: Configure CMake (RawMaster)
+        run: cmake -S plugins/raw-master -B plugins/raw-master/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Compile RawMaster
+        run: cmake --build plugins/raw-master/build --config Release
+
+      - name: Run RawMaster Verification Tests
+        run: ctest --test-dir plugins/raw-master/build -C Release --output-on-failure
+
+      # Upload Artifacts
       - name: Upload MidwestAmp CLAP Plugin Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -52,6 +85,3 @@ jobs:
             plugins/midwest-amp/build/MidwestAmp.clap
             plugins/midwest-amp/build/Release/MidwestAmp.clap
           if-no-files-found: ignore
-
-
-

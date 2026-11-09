@@ -11,10 +11,13 @@ import {
   Speaker, 
   Mic2, 
   Layers, 
-  HelpCircle,
-  Move,
-  Download,
-  LayoutTemplate
+  HelpCircle, 
+  Move, 
+  Download, 
+  LayoutTemplate,
+  Copy,
+  Check,
+  Image as ImageIcon
 } from 'lucide-react';
 
 interface StageCanvasProps {
@@ -39,6 +42,7 @@ export function StageCanvas({ items, onUpdateItems }: StageCanvasProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragItemId, setDragItemId] = useState<string | null>(null);
   const [showStamps, setShowStamps] = useState(true);
+  const [isCopying, setIsCopying] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
 
   const selectedItem = items.find((i) => i.id === selectedId) || null;
@@ -108,30 +112,27 @@ export function StageCanvas({ items, onUpdateItems }: StageCanvasProps) {
     );
   };
 
-  // Export stage plot as SVG image file
-  const handleExportStageImage = () => {
-    const width = 1000;
-    const height = 700;
-
-    const svgContent = `
+  // Generate stage plot SVG string representation
+  const generateStageSvg = (width = 1200, height = 800) => {
+    return `
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">
         <rect width="${width}" height="${height}" fill="#09090b" stroke="#ffffff" stroke-width="6"/>
         
         <!-- Header -->
-        <rect x="0" y="0" width="${width}" height="60" fill="#e11d48"/>
-        <text x="30" y="40" font-family="Arial, sans-serif" font-weight="900" font-size="28" fill="#ffffff" letter-spacing="2">
+        <rect x="0" y="0" width="${width}" height="65" fill="#e11d48"/>
+        <text x="30" y="44" font-family="Arial, sans-serif" font-weight="900" font-size="28" fill="#ffffff" letter-spacing="2">
           STAGE PLOT // MAPA DE PALCO OFICIAL (UNDERGROUND TOOLS)
         </text>
 
         <!-- Upstage guide -->
-        <rect x="50" y="80" width="${width - 100}" height="30" fill="#18181b" stroke="#3f3f46" stroke-dasharray="4"/>
-        <text x="${width / 2}" y="100" text-anchor="middle" font-family="monospace" font-size="14" fill="#a1a1aa">
+        <rect x="50" y="85" width="${width - 100}" height="35" fill="#18181b" stroke="#3f3f46" stroke-dasharray="4"/>
+        <text x="${width / 2}" y="108" text-anchor="middle" font-family="monospace" font-size="14" fill="#a1a1aa">
           ▲ FUNDO DE PALCO // PAREDE // DRUM RISER ▲
         </text>
 
         <!-- Drum guide box -->
-        <rect x="300" y="130" width="400" height="200" fill="none" stroke="#27272a" stroke-width="2" stroke-dasharray="6"/>
-        <text x="${width / 2}" y="235" text-anchor="middle" font-family="monospace" font-size="14" fill="#3f3f46">
+        <rect x="${width / 2 - 220}" y="140" width="440" height="230" fill="none" stroke="#27272a" stroke-width="2" stroke-dasharray="6"/>
+        <text x="${width / 2}" y="255" text-anchor="middle" font-family="monospace" font-size="14" fill="#52525b">
           ÁREA DA BATERIA (2x2m)
         </text>
 
@@ -152,9 +153,9 @@ export function StageCanvas({ items, onUpdateItems }: StageCanvasProps) {
             else if (item.type === 'monitor_wedge') { fill = '#3b0764'; stroke = '#a855f7'; textColor = '#f3e8ff'; }
 
             return `
-              <g transform="translate(${posX}, ${posY})">
-                <rect x="-60" y="-30" width="120" height="60" fill="${fill}" stroke="${stroke}" stroke-width="3" rx="4"/>
-                <text x="0" y="-5" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="12" fill="${textColor}">
+              <g transform="translate(${posX}, ${posY}) rotate(${item.rotation || 0})">
+                <rect x="-65" y="-32" width="130" height="64" fill="${fill}" stroke="${stroke}" stroke-width="3" rx="4"/>
+                <text x="0" y="-6" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="13" fill="${textColor}">
                   ${item.shortLabel}
                 </text>
                 ${item.channelNumber ? `
@@ -168,13 +169,96 @@ export function StageCanvas({ items, onUpdateItems }: StageCanvasProps) {
           .join('')}
 
         <!-- Downstage / Audience -->
-        <rect x="0" y="${height - 50}" width="${width}" height="50" fill="#facc15"/>
-        <text x="${width / 2}" y="${height - 20}" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="18" fill="#000000" letter-spacing="4">
+        <rect x="0" y="${height - 55}" width="${width}" height="55" fill="#facc15"/>
+        <text x="${width / 2}" y="${height - 20}" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="20" fill="#000000" letter-spacing="4">
           ▼ FRENTE DE PALCO // PÚBLICO & F.O.H. ▼
         </text>
       </svg>
     `;
+  };
 
+  // Render SVG to HTML5 Canvas for PNG export & clipboard copying
+  const renderStageToCanvas = async (scale = 2): Promise<HTMLCanvasElement> => {
+    const width = 1200;
+    const height = 800;
+    const svgStr = generateStageSvg(width, height);
+    const canvas = document.createElement('canvas');
+    canvas.width = width * scale;
+    canvas.height = height * scale;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('No 2d context');
+
+    ctx.scale(scale, scale);
+
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      img.onload = () => {
+        ctx.fillStyle = '#09090b';
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+        URL.revokeObjectURL(url);
+        resolve(canvas);
+      };
+      img.onerror = (e) => {
+        URL.revokeObjectURL(url);
+        reject(e);
+      };
+      img.src = url;
+    });
+  };
+
+  // Export as high-resolution PNG image
+  const handleExportStagePng = async () => {
+    try {
+      const canvas = await renderStageToCanvas(2);
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `mapa-de-palco-underground-${new Date().toISOString().slice(0, 10)}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 'image/png');
+    } catch (err) {
+      console.error(err);
+      handleExportStageSvg();
+    }
+  };
+
+  // Copy PNG image to clipboard for WhatsApp/Discord sharing
+  const handleCopyStagePng = async () => {
+    try {
+      setIsCopying(true);
+      const canvas = await renderStageToCanvas(1.5);
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          setIsCopying(false);
+          return;
+        }
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob }),
+          ]);
+          setTimeout(() => setIsCopying(false), 2000);
+        } catch (clipboardErr) {
+          console.warn('Clipboard write failed, downloading PNG instead', clipboardErr);
+          handleExportStagePng();
+          setIsCopying(false);
+        }
+      }, 'image/png');
+    } catch (e) {
+      setIsCopying(false);
+    }
+  };
+
+  // Export stage plot as SVG vector
+  const handleExportStageSvg = () => {
+    const svgContent = generateStageSvg(1200, 800);
     const blob = new Blob([svgContent], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -252,8 +336,8 @@ export function StageCanvas({ items, onUpdateItems }: StageCanvasProps) {
           </p>
         </div>
 
-        {/* Action: Export SVG Image */}
-        <div className="flex items-center gap-2">
+        {/* Action: Export PNG / Copy to Clipboard / Export SVG */}
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setShowStamps(!showStamps)}
             className="text-[11px] font-mono text-zinc-400 hover:text-white px-2 py-1 border border-zinc-700"
@@ -262,10 +346,29 @@ export function StageCanvas({ items, onUpdateItems }: StageCanvasProps) {
           </button>
 
           <button
-            onClick={handleExportStageImage}
-            className="bg-yellow-400 hover:bg-yellow-300 text-black font-mono font-bold text-xs uppercase px-3 py-1.5 border-2 border-black shadow-brutal-sm flex items-center gap-1.5 active:scale-95 transition-all"
+            onClick={handleCopyStagePng}
+            disabled={isCopying}
+            className="bg-black hover:bg-zinc-800 text-zinc-200 font-mono text-xs uppercase px-2.5 py-1.5 border border-zinc-700 flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+            title="Copiar imagem PNG para colar direto no WhatsApp ou Discord"
           >
-            <Download className="w-3.5 h-3.5" /> Baixar Imagem (SVG/WhatsApp)
+            {isCopying ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-yellow-400" />}
+            <span>{isCopying ? 'Copiado!' : 'Copiar Imagem'}</span>
+          </button>
+
+          <button
+            onClick={handleExportStagePng}
+            className="bg-yellow-400 hover:bg-yellow-300 text-black font-mono font-bold text-xs uppercase px-3 py-1.5 border-2 border-black shadow-brutal-sm flex items-center gap-1.5 active:scale-95 transition-all"
+            title="Baixar imagem em formato PNG alta definição"
+          >
+            <Download className="w-3.5 h-3.5" /> Baixar Imagem (PNG)
+          </button>
+
+          <button
+            onClick={handleExportStageSvg}
+            className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-mono text-xs uppercase px-2 py-1.5 border border-zinc-600 flex items-center gap-1 active:scale-95 transition-all"
+            title="Baixar em formato vetorial SVG"
+          >
+            SVG
           </button>
         </div>
       </div>
