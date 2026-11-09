@@ -76,12 +76,50 @@ jobs:
       - name: Run RawMaster Verification Tests
         run: ctest --test-dir plugins/raw-master/build -C Release --output-on-failure
 
-      # Upload Artifacts
-      - name: Upload MidwestAmp CLAP Plugin Artifact
+      # 6. MidwestKit (VSTi Drum Synth)
+      - name: Configure CMake (MidwestKit)
+        run: cmake -S plugins/midwest-kit -B plugins/midwest-kit/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Compile MidwestKit
+        run: cmake --build plugins/midwest-kit/build --config Release
+
+      - name: Run MidwestKit Verification Tests
+        run: ctest --test-dir plugins/midwest-kit/build -C Release --output-on-failure
+
+      # 7. SadBoyUpright (VSTi Felt Piano Synth)
+      - name: Configure CMake (SadBoyUpright)
+        run: cmake -S plugins/sadboy-upright -B plugins/sadboy-upright/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Compile SadBoyUpright
+        run: cmake --build plugins/sadboy-upright/build --config Release
+
+      - name: Run SadBoyUpright Verification Tests
+        run: ctest --test-dir plugins/sadboy-upright/build -C Release --output-on-failure
+
+      # 8. GargantuaColossus (VSTi Drone Synth)
+      - name: Configure CMake (GargantuaColossus)
+        run: cmake -S plugins/gargantua-colossus -B plugins/gargantua-colossus/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Compile GargantuaColossus
+        run: cmake --build plugins/gargantua-colossus/build --config Release
+
+      - name: Run GargantuaColossus Verification Tests
+        run: ctest --test-dir plugins/gargantua-colossus/build -C Release --output-on-failure
+
+      # Upload Artifacts for All 5 CLAP Plugins
+      - name: Upload Emo Audio Tools CLAP Suite Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: MidwestAmp-${{ matrix.os }}
+          name: EmoAudioTools-CLAP-Suite-${{ matrix.os }}
           path: |
             plugins/midwest-amp/build/MidwestAmp.clap
             plugins/midwest-amp/build/Release/MidwestAmp.clap
+            plugins/cry-tune/build/CryTune.clap
+            plugins/cry-tune/build/Release/CryTune.clap
+            plugins/screamo-punch/build/ScreamoPunch.clap
+            plugins/screamo-punch/build/Release/ScreamoPunch.clap
+            plugins/drown-space/build/DrownSpace.clap
+            plugins/drown-space/build/Release/DrownSpace.clap
+            plugins/raw-master/build/RawMaster.clap
+            plugins/raw-master/build/Release/RawMaster.clap
           if-no-files-found: ignore

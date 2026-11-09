@@ -13,10 +13,16 @@ import {
   AlertTriangle,
   Lightbulb,
   Music,
-  Compass
+  Compass,
+  Calculator,
+  Copy,
+  Check,
+  TrendingUp,
+  TrendingDown,
+  DollarSign
 } from 'lucide-react';
 
-type GuideSection = 'palco' | 'vs_click' | 'foh' | 'ensaio' | 'divulgacao' | 'bag';
+type GuideSection = 'palco' | 'vs_click' | 'foh' | 'ensaio' | 'divulgacao' | 'bag' | 'calculadora';
 
 export function RoadGuideView() {
   const [activeSection, setActiveSection] = useState<GuideSection>('palco');
@@ -34,6 +40,69 @@ export function RoadGuideView() {
     lanterna: false,
     extensao_eletrica: true,
   });
+
+  // Tour & Fuel Calculator state
+  const [distanceKm, setDistanceKm] = useState<number>(380);
+  const [fuelConsumption, setFuelConsumption] = useState<number>(9.5);
+  const [fuelPrice, setFuelPrice] = useState<number>(5.90);
+  const [tolls, setTolls] = useState<number>(68.0);
+  const [vehicleRental, setVehicleRental] = useState<number>(0.0);
+  const [foodAndStay, setFoodAndStay] = useState<number>(180.0);
+  const [emergencyCost, setEmergencyCost] = useState<number>(50.0);
+  const [cachet, setCachet] = useState<number>(850.0);
+  const [merchEstimate, setMerchEstimate] = useState<number>(350.0);
+  const [members, setMembers] = useState<number>(4);
+  const [bandCaixaPercent, setBandCaixaPercent] = useState<number>(20);
+  const [copiedZap, setCopiedZap] = useState<boolean>(false);
+
+  // Computations
+  const safeConsumption = fuelConsumption > 0 ? fuelConsumption : 1;
+  const safeMembers = members > 0 ? members : 1;
+  const fuelLitersNeeded = distanceKm / safeConsumption;
+  const totalFuelCost = fuelLitersNeeded * fuelPrice;
+  const totalTransportCost = totalFuelCost + tolls + vehicleRental;
+  const totalExpenses = totalTransportCost + foodAndStay + emergencyCost;
+  const grossRevenue = cachet + merchEstimate;
+  const netBalance = grossRevenue - totalExpenses;
+  const isProfit = netBalance >= 0;
+  const bandFundAmount = isProfit ? (netBalance * (bandCaixaPercent / 100)) : 0;
+  const distributable = isProfit ? (netBalance - bandFundAmount) : netBalance;
+  const perMemberAmount = distributable / safeMembers;
+  const breakEven = totalExpenses;
+
+  const handleCopyZapSummary = () => {
+    const text = [
+      `🚐 *UNDERGROUND TOOLS // BALANÇO DE ESTRADA*`,
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+      `📍 *Distância:* ${distanceKm} km (Ida & Volta)`,
+      `⛽ *Combustível:* ${fuelLitersNeeded.toFixed(1)} L (R$ ${totalFuelCost.toFixed(2)})`,
+      `🛣️ *Pedágios:* R$ ${tolls.toFixed(2)}`,
+      vehicleRental > 0 ? `🚗 *Aluguel de Van/Carro:* R$ ${vehicleRental.toFixed(2)}` : null,
+      `🍔 *Alimentação & Pernoite:* R$ ${foodAndStay.toFixed(2)}`,
+      emergencyCost > 0 ? `🩹 *Reserva de Emergência:* R$ ${emergencyCost.toFixed(2)}` : null,
+      `──────────────────────────`,
+      `💸 *CUSTO TOTAL DA TRIP:* R$ ${totalExpenses.toFixed(2)}`,
+      ``,
+      `💰 *Cachê Fechado:* R$ ${cachet.toFixed(2)}`,
+      merchEstimate > 0 ? `👕 *Previsão de Merch:* R$ ${merchEstimate.toFixed(2)}` : null,
+      `💵 *RECEITA TOTAL:* R$ ${grossRevenue.toFixed(2)}`,
+      `──────────────────────────`,
+      isProfit 
+        ? `🔥 *SALDO LÍQUIDO:* +R$ ${netBalance.toFixed(2)} (CONTA PAGA / LUCRO)`
+        : `⚠️ *SALDO LÍQUIDO:* -R$ ${Math.abs(netBalance).toFixed(2)} (PREJUÍZO / RACHA)`,
+      `🎯 *Ponto de Equilíbrio:* R$ ${breakEven.toFixed(2)}`,
+      `👥 *Integrantes:* ${members} pessoas`,
+      isProfit
+        ? `🏦 *Caixa da Banda (${bandCaixaPercent}%):* R$ ${bandFundAmount.toFixed(2)}\n💵 *Por Integrante:* R$ ${perMemberAmount.toFixed(2)}`
+        : `💸 *Cada Integrante Cobre:* R$ ${Math.abs(perMemberAmount).toFixed(2)} do bolso`,
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+      `Gerado pelo Underground Tools DIY`,
+    ].filter(Boolean).join('\n');
+
+    navigator.clipboard.writeText(text);
+    setCopiedZap(true);
+    setTimeout(() => setCopiedZap(false), 2500);
+  };
 
   const toggleItem = (key: string) => {
     setCheckedItems((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -121,6 +190,18 @@ export function RoadGuideView() {
           }`}
         >
           06. Bag da Sobrevivência
+        </button>
+
+        <button
+          onClick={() => setActiveSection('calculadora')}
+          className={`px-3 py-2 text-xs font-bold uppercase border-2 transition-all flex items-center gap-1.5 ${
+            activeSection === 'calculadora'
+              ? 'bg-amber-400 text-black border-black shadow-brutal-sm'
+              : 'bg-zinc-950 text-amber-400 border-amber-500/40 hover:bg-amber-400/10'
+          }`}
+        >
+          <Calculator className="w-3.5 h-3.5" />
+          07. Calculadora de Turnê & Van
         </button>
       </div>
 
@@ -474,6 +555,361 @@ export function RoadGuideView() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SECTION 7: CALCULADORA DE TURNÊ & VAN (DIVISÃO DE CUSTOS E CACHÊ)        */}
+      {/* ========================================================================= */}
+      {activeSection === 'calculadora' && (
+        <div className="space-y-6">
+          <div className="bg-[#121215] border-2 border-zinc-800 p-6 shadow-brutal space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800 pb-3">
+              <div>
+                <span className="text-xs text-amber-400 font-bold uppercase tracking-widest block flex items-center gap-1.5">
+                  <Calculator className="w-3.5 h-3.5" />
+                  LOGÍSTICA FINANCEIRA DIY // SIMULADOR DE VIAGEM
+                </span>
+                <h2 className="font-stencil text-2xl md:text-3xl text-white">
+                  CALCULADORA DE TURNÊ, COMBUSTÍVEL & DIVISÃO DE CACHÊ
+                </h2>
+              </div>
+              <button
+                onClick={handleCopyZapSummary}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase px-4 py-2 border-2 border-black shadow-brutal-sm flex items-center gap-2 transition-transform active:translate-x-0.5 active:translate-y-0.5"
+              >
+                {copiedZap ? (
+                  <>
+                    <Check className="w-4 h-4 text-white" />
+                    <span>Copiado pro Zap!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    <span>Copiar Balanço pro Zap</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <p className="text-xs text-zinc-300 leading-relaxed">
+              O maior perigo do underground é a banda pagar pra tocar sem nem perceber. Insira as despesas reais de estrada,
+              o cachê prometido e as vendas de camiseta para calcular na hora se a viagem se paga, qual é o ponto de equilíbrio
+              e quanto cada integrante ganha (ou precisa inteirar).
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Form Inputs (Left: 7 Cols) */}
+            <div className="lg:col-span-7 space-y-6">
+              {/* Card 1: Deslocamento & Estrada */}
+              <div className="bg-[#121215] border-2 border-zinc-800 p-5 shadow-brutal space-y-4">
+                <div className="border-b border-zinc-800 pb-2 flex items-center gap-2">
+                  <span className="w-5 h-5 bg-amber-400 text-black text-[11px] font-bold flex items-center justify-center">1</span>
+                  <h3 className="font-stencil text-lg text-white">COMBUSTÍVEL & DESLOCAMENTO</h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-[11px] uppercase text-zinc-400 font-bold block mb-1">
+                      Distância Total (Ida+Volta)
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min="0"
+                        value={distanceKm}
+                        onChange={(e) => setDistanceKm(Math.max(0, Number(e.target.value)))}
+                        className="w-full bg-black border border-zinc-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400 font-mono"
+                      />
+                      <span className="absolute right-3 top-2 text-xs text-zinc-500">km</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] uppercase text-zinc-400 font-bold block mb-1">
+                      Consumo do Veículo
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="1"
+                        value={fuelConsumption}
+                        onChange={(e) => setFuelConsumption(Math.max(0.1, Number(e.target.value)))}
+                        className="w-full bg-black border border-zinc-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400 font-mono"
+                      />
+                      <span className="absolute right-3 top-2 text-xs text-zinc-500">km/L</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] uppercase text-zinc-400 font-bold block mb-1">
+                      Preço do Litro
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-2 text-xs text-zinc-500">R$</span>
+                      <input
+                        type="number"
+                        step="0.05"
+                        min="0"
+                        value={fuelPrice}
+                        onChange={(e) => setFuelPrice(Math.max(0, Number(e.target.value)))}
+                        className="w-full bg-black border border-zinc-700 pl-8 pr-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400 font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label className="text-[11px] uppercase text-zinc-400 font-bold block mb-1">
+                      Pedágios (Ida e Volta)
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-2 text-xs text-zinc-500">R$</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={tolls}
+                        onChange={(e) => setTolls(Math.max(0, Number(e.target.value)))}
+                        className="w-full bg-black border border-zinc-700 pl-8 pr-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400 font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] uppercase text-zinc-400 font-bold block mb-1">
+                      Aluguel da Van / Carro (opcional)
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-2 text-xs text-zinc-500">R$</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={vehicleRental}
+                        onChange={(e) => setVehicleRental(Math.max(0, Number(e.target.value)))}
+                        className="w-full bg-black border border-zinc-700 pl-8 pr-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400 font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-black/60 p-3 border-l-2 border-amber-400 text-xs text-zinc-300 flex justify-between items-center">
+                  <span>Previsão de Combustível: <strong>{fuelLitersNeeded.toFixed(1)} L</strong></span>
+                  <span className="text-amber-400 font-bold">Subtotal Estrada: R$ {totalTransportCost.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {/* Card 2: Alimentação, Hospedagem e Imprevistos */}
+              <div className="bg-[#121215] border-2 border-zinc-800 p-5 shadow-brutal space-y-4">
+                <div className="border-b border-zinc-800 pb-2 flex items-center gap-2">
+                  <span className="w-5 h-5 bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center">2</span>
+                  <h3 className="font-stencil text-lg text-white">ALIMENTAÇÃO & HOSPEDAGEM</h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] uppercase text-zinc-400 font-bold block mb-1">
+                      Comida & Diárias da Equipe
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-2 text-xs text-zinc-500">R$</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={foodAndStay}
+                        onChange={(e) => setFoodAndStay(Math.max(0, Number(e.target.value)))}
+                        className="w-full bg-black border border-zinc-700 pl-8 pr-3 py-2 text-sm text-white focus:outline-none focus:border-rose-500 font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] uppercase text-zinc-400 font-bold block mb-1">
+                      Caixinha de Emergência (Pneu, Corda, etc.)
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-2 text-xs text-zinc-500">R$</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={emergencyCost}
+                        onChange={(e) => setEmergencyCost(Math.max(0, Number(e.target.value)))}
+                        className="w-full bg-black border border-zinc-700 pl-8 pr-3 py-2 text-sm text-white focus:outline-none focus:border-rose-500 font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3: Receitas da Noite & Integrantes */}
+              <div className="bg-[#121215] border-2 border-zinc-800 p-5 shadow-brutal space-y-4">
+                <div className="border-b border-zinc-800 pb-2 flex items-center gap-2">
+                  <span className="w-5 h-5 bg-emerald-500 text-black text-[11px] font-bold flex items-center justify-center">3</span>
+                  <h3 className="font-stencil text-lg text-white">RECEITA & DIVISÃO ENTRE INTEGRANTES</h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] uppercase text-zinc-400 font-bold block mb-1">
+                      Cachê Fechado com a Casa
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-2 text-xs text-zinc-500">R$</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={cachet}
+                        onChange={(e) => setCachet(Math.max(0, Number(e.target.value)))}
+                        className="w-full bg-black border border-zinc-700 pl-8 pr-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] uppercase text-zinc-400 font-bold block mb-1">
+                      Previsão de Venda de Merch (Camisas/CDs)
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-2 text-xs text-zinc-500">R$</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={merchEstimate}
+                        onChange={(e) => setMerchEstimate(Math.max(0, Number(e.target.value)))}
+                        className="w-full bg-black border border-zinc-700 pl-8 pr-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label className="text-[11px] uppercase text-zinc-400 font-bold block mb-1">
+                      Número de Integrantes / Pessoas
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="12"
+                      value={members}
+                      onChange={(e) => setMembers(Math.max(1, Number(e.target.value)))}
+                      className="w-full bg-black border border-zinc-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] uppercase text-zinc-400 font-bold block mb-1">
+                      % Retido pro Fundo/Caixa da Banda
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={bandCaixaPercent}
+                        onChange={(e) => setBandCaixaPercent(Math.min(100, Math.max(0, Number(e.target.value))))}
+                        className="w-full bg-black border border-zinc-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono"
+                      />
+                      <span className="absolute right-3 top-2 text-xs text-zinc-500">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Live Financial Report Panel (Right: 5 Cols) */}
+            <div className="lg:col-span-5 space-y-4">
+              <div className={`p-6 border-4 shadow-brutal space-y-5 ${
+                isProfit ? 'bg-[#0f1712] border-emerald-500' : 'bg-[#1c0c0e] border-rose-600'
+              }`}>
+                {/* Status Badge */}
+                <div className="flex items-center justify-between">
+                  <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 border ${
+                    isProfit 
+                      ? 'bg-emerald-500 text-black border-black' 
+                      : 'bg-rose-600 text-white border-black animate-pulse'
+                  }`}>
+                    {isProfit ? '✓ TURNÊ LUCRATIVA / CONTA PAGA' : '⚠ ALERTA DE PREJUÍZO'}
+                  </span>
+                  {isProfit ? (
+                    <TrendingUp className="w-5 h-5 text-emerald-400" />
+                  ) : (
+                    <TrendingDown className="w-5 h-5 text-rose-500" />
+                  )}
+                </div>
+
+                {/* Main Big Number: Net Balance */}
+                <div>
+                  <div className="text-[11px] text-zinc-400 uppercase tracking-widest font-bold">
+                    Resultado Líquido Final
+                  </div>
+                  <div className={`font-stencil text-4xl md:text-5xl mt-1 ${
+                    isProfit ? 'text-emerald-400' : 'text-rose-500'
+                  }`}>
+                    {isProfit ? `+ R$ ${netBalance.toFixed(2)}` : `- R$ ${Math.abs(netBalance).toFixed(2)}`}
+                  </div>
+                  <div className="text-xs text-zinc-400 mt-1">
+                    {isProfit 
+                      ? 'A turnê cobriu todas as despesas e gerou lucro líquido para a banda!' 
+                      : 'A receita do cachê + merch não cobre a estrada. Veja o racha abaixo:'}
+                  </div>
+                </div>
+
+                {/* Financial Ledger */}
+                <div className="bg-black/70 border border-zinc-800 p-4 space-y-2.5 text-xs font-mono">
+                  <div className="flex justify-between text-zinc-300">
+                    <span>• Custo Total da Viagem:</span>
+                    <span className="text-rose-400 font-bold">R$ {totalExpenses.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-zinc-300">
+                    <span>• Receita Bruta (Cachê + Merch):</span>
+                    <span className="text-emerald-400 font-bold">R$ {grossRevenue.toFixed(2)}</span>
+                  </div>
+                  <div className="border-t border-zinc-800 pt-2 flex justify-between text-zinc-400 text-[11px]">
+                    <span>🎯 Ponto de Equilíbrio (Break-Even):</span>
+                    <span className="text-amber-400 font-bold">R$ {breakEven.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                {/* Per Member Breakdown */}
+                <div className="border-t-2 border-zinc-800 pt-4 space-y-3">
+                  <h4 className="font-stencil text-base text-white tracking-wider">
+                    DIVISÃO ENTRE OS {members} INTEGRANTES:
+                  </h4>
+
+                  {isProfit ? (
+                    <div className="space-y-2 text-xs">
+                      {bandCaixaPercent > 0 && (
+                        <div className="bg-black/50 p-2.5 border border-zinc-800 flex justify-between items-center">
+                          <span className="text-zinc-300">Caixa da Banda ({bandCaixaPercent}%):</span>
+                          <span className="text-amber-400 font-bold">R$ {bandFundAmount.toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className="bg-emerald-950/60 p-3 border border-emerald-600 flex justify-between items-center">
+                        <span className="text-white font-bold">Para cada músico:</span>
+                        <span className="font-stencil text-2xl text-emerald-300">R$ {perMemberAmount.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-rose-950/60 p-3 border border-rose-600 space-y-1 text-xs">
+                      <div className="text-zinc-300">Prejuízo a ser rateado por igual:</div>
+                      <div className="flex justify-between items-baseline pt-1">
+                        <span className="text-white font-bold">Cada integrante tira do bolso:</span>
+                        <span className="font-stencil text-2xl text-rose-400">R$ {Math.abs(perMemberAmount).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Quick Advice Box */}
+                <div className="bg-black/40 p-3 border border-zinc-800 text-[11px] text-zinc-400 leading-relaxed">
+                  💡 <strong>Dica de Estrada:</strong> Se o saldo estiver apertado, foque em levar no mínimo 10 camisetas na mala.
+                  Apenas 3 camisetas vendidas na porta costumam pagar todo o pedágio e a alimentação do dia.
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

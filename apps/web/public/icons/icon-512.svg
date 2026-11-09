@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="64" fill="#080808"/>
+  <rect x="24" y="24" width="464" height="464" rx="48" fill="#121215" stroke="#facc15" stroke-width="12"/>
+  
+  <!-- Cassette Tape / Amp Body -->
+  <rect x="76" y="110" width="360" height="230" rx="16" fill="#18181b" stroke="#e11d48" stroke-width="8"/>
+  
+  <!-- Cassette Label / Grill -->
+  <rect x="110" y="140" width="292" height="110" rx="8" fill="#facc15"/>
+  <text x="256" y="175" font-family="Courier New, monospace" font-size="22" font-weight="900" fill="#000000" text-anchor="middle" letter-spacing="4">UNDERGROUND TOOLS</text>
+  <text x="256" y="200" font-family="Courier New, monospace" font-size="14" font-weight="700" fill="#e11d48" text-anchor="middle" letter-spacing="2">DIY STAGE &amp; TOUR SUITE</text>
+  
+  <!-- Spools -->
+  <circle cx="180" cy="285" r="32" fill="#080808" stroke="#ffffff" stroke-width="6"/>
+  <circle cx="180" cy="285" r="12" fill="#facc15"/>
+  <circle cx="332" cy="285" r="32" fill="#080808" stroke="#ffffff" stroke-width="6"/>
+  <circle cx="332" cy="285" r="12" fill="#facc15"/>
+  
+  <!-- Tape Window -->
+  <rect x="220" y="270" width="72" height="30" rx="4" fill="#27272a" stroke="#52525b" stroke-width="3"/>
+
+  <!-- Lightning Bolt -->
+  <polygon points="266,350 240,400 258,400 246,450 282,390 262,390" fill="#facc15" stroke="#000000" stroke-width="3"/>
+</svg>
